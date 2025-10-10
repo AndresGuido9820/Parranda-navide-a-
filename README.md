@@ -78,10 +78,13 @@ La web respira un clima íntimo y sencillo; no busca deslumbrar, sino sostener u
 ## 🛠️ Tecnologías
 
 ### Backend
-- **API REST** con OpenAPI 3.0.3
+- **FastAPI**: Framework web moderno y rápido para Python
+- **OpenAPI 3.0.3**: Documentación automática de API
 - **Base de datos**: PostgreSQL con esquema `parranda`
 - **Autenticación**: JWT Bearer tokens
 - **Almacenamiento**: JSONB para ingredientes de recetas
+- **ORM**: SQLAlchemy para manejo de base de datos
+- **Validación**: Pydantic para modelos y validación de datos
 
 ### Frontend
 - **Framework**: React/Vue.js (por definir)
@@ -97,9 +100,10 @@ La web respira un clima íntimo y sencillo; no busca deslumbrar, sino sostener u
 ## 🚀 Instalación
 
 ### Prerrequisitos
+- Python 3.9+
 - Node.js 18+
 - PostgreSQL 13+
-- npm o yarn
+- pip (Python package manager)
 
 ### Configuración del Backend
 
@@ -132,8 +136,15 @@ API_PORT=3000
 
 4. **Instalar dependencias y ejecutar**
 ```bash
-npm install
-npm run dev
+# Crear entorno virtual
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Ejecutar servidor de desarrollo
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### Configuración del Frontend
@@ -304,69 +315,123 @@ Content-Type: application/json
 
 ```mermaid
 graph TB
-    subgraph "Frontend"
-        UI[React/Vue.js App]
-        COMP[Components]
-        PAGES[Pages]
-        SERVICES[API Services]
+    subgraph "Cliente Web"
+        BROWSER[Navegador]
+        UI[React/Vue.js SPA]
+        COMP[Componentes UI]
+        STATE[Estado Global]
     end
     
-    subgraph "Backend API"
-        AUTH[Auth Controller]
-        NOVENA[Novena Controller]
-        RECIPES[Recipes Controller]
-        MUSIC[Music Controller]
-        GAMES[Games Controller]
-        SUPPORT[Support Controller]
+    subgraph "FastAPI Backend"
+        API[FastAPI App]
+        ROUTER[Router Principal]
+        
+        subgraph "Routers"
+            AUTH_ROUTER[Auth Router]
+            NOVENA_ROUTER[Novena Router]
+            RECIPES_ROUTER[Recipes Router]
+            MUSIC_ROUTER[Music Router]
+            GAMES_ROUTER[Games Router]
+            SUPPORT_ROUTER[Support Router]
+        end
+        
+        subgraph "Servicios"
+            AUTH_SVC[Auth Service]
+            NOVENA_SVC[Novena Service]
+            RECIPES_SVC[Recipes Service]
+            MUSIC_SVC[Music Service]
+            GAMES_SVC[Games Service]
+        end
+        
+        subgraph "Middleware"
+            JWT_MW[JWT Middleware]
+            CORS_MW[CORS Middleware]
+            LOG_MW[Logging Middleware]
+        end
     end
     
-    subgraph "Base de Datos"
+    subgraph "Base de Datos PostgreSQL"
         PG[(PostgreSQL)]
-        USERS[Users Table]
-        NOVENA_DB[Novena Tables]
-        RECIPES_DB[Recipes Tables]
-        MUSIC_DB[Music Tables]
-        GAMES_DB[Games Tables]
+        
+        subgraph "Esquema parranda"
+            USERS_TBL[users]
+            NOVENA_TBL[novena_days]
+            PROGRESS_TBL[user_novena_progress]
+            RECIPES_TBL[recipes]
+            STEPS_TBL[recipe_steps]
+            PHOTOS_TBL[recipe_photos]
+            TRACKS_TBL[music_tracks]
+            QUEUES_TBL[playback_queues]
+            GAMES_TBL[game_sessions]
+        end
     end
     
     subgraph "Servicios Externos"
-        EMAIL[Email Service]
-        STORAGE[File Storage]
-        CDN[CDN]
+        EMAIL_SVC[Email Service<br/>Magic Links]
+        FILE_STORAGE[File Storage<br/>Photos & Audio]
+        CDN[CDN<br/>Static Assets]
     end
     
-    UI --> SERVICES
-    SERVICES --> AUTH
-    SERVICES --> NOVENA
-    SERVICES --> RECIPES
-    SERVICES --> MUSIC
-    SERVICES --> GAMES
-    SERVICES --> SUPPORT
+    subgraph "Infraestructura"
+        NGINX[Nginx<br/>Reverse Proxy]
+        REDIS[Redis<br/>Cache & Sessions]
+        MONITORING[Monitoring<br/>Logs & Metrics]
+    end
     
-    AUTH --> PG
-    NOVENA --> PG
-    RECIPES --> PG
-    MUSIC --> PG
-    GAMES --> PG
-    SUPPORT --> PG
+    %% Flujo principal
+    BROWSER --> UI
+    UI --> COMP
+    COMP --> STATE
     
-    PG --> USERS
-    PG --> NOVENA_DB
-    PG --> RECIPES_DB
-    PG --> MUSIC_DB
-    PG --> GAMES_DB
+    UI -->|HTTP/HTTPS| NGINX
+    NGINX --> API
     
-    AUTH --> EMAIL
-    RECIPES --> STORAGE
-    MUSIC --> CDN
+    API --> ROUTER
+    ROUTER --> AUTH_ROUTER
+    ROUTER --> NOVENA_ROUTER
+    ROUTER --> RECIPES_ROUTER
+    ROUTER --> MUSIC_ROUTER
+    ROUTER --> GAMES_ROUTER
+    ROUTER --> SUPPORT_ROUTER
+    
+    %% Routers a Servicios
+    AUTH_ROUTER --> AUTH_SVC
+    NOVENA_ROUTER --> NOVENA_SVC
+    RECIPES_ROUTER --> RECIPES_SVC
+    MUSIC_ROUTER --> MUSIC_SVC
+    GAMES_ROUTER --> GAMES_SVC
+    
+    %% Servicios a Base de Datos
+    AUTH_SVC --> PG
+    NOVENA_SVC --> PG
+    RECIPES_SVC --> PG
+    MUSIC_SVC --> PG
+    GAMES_SVC --> PG
+    
+    %% Servicios Externos
+    AUTH_SVC --> EMAIL_SVC
+    RECIPES_SVC --> FILE_STORAGE
+    MUSIC_SVC --> CDN
+    
+    %% Middleware
+    API --> JWT_MW
+    API --> CORS_MW
+    API --> LOG_MW
+    
+    %% Cache
+    API --> REDIS
+    
+    %% Monitoreo
+    API --> MONITORING
 ```
 
 ### Componentes Principales
 
-- **Frontend**: Aplicación web responsive con tema navideño
-- **Backend API**: REST API con autenticación JWT
-- **Base de Datos**: PostgreSQL con esquema `parranda`
+- **Frontend**: Aplicación web responsive con tema navideño (React/Vue.js)
+- **FastAPI Backend**: API REST moderna con documentación automática
+- **Base de Datos**: PostgreSQL con esquema `parranda` y tablas específicas
 - **Servicios**: Email para magic links, almacenamiento de archivos, CDN para música
+- **Infraestructura**: Nginx como reverse proxy, Redis para cache, monitoreo
 
 ## 🌿 Flujo de Trabajo Git
 
@@ -644,22 +709,67 @@ Parranda-navide-a-/
 ├── LICENSE
 ├── .gitignore
 ├── .env.example
-├── api/
-│   ├── src/
-│   │   ├── controllers/
+├── requirements.txt
+├── main.py
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── main.py
+│   │   ├── config.py
+│   │   ├── database.py
+│   │   ├── routers/
+│   │   │   ├── __init__.py
+│   │   │   ├── auth.py
+│   │   │   ├── novena.py
+│   │   │   ├── recipes.py
+│   │   │   ├── music.py
+│   │   │   ├── games.py
+│   │   │   └── support.py
 │   │   ├── models/
-│   │   ├── routes/
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── novena.py
+│   │   │   ├── recipe.py
+│   │   │   ├── music.py
+│   │   │   └── game.py
+│   │   ├── schemas/
+│   │   │   ├── __init__.py
+│   │   │   ├── user.py
+│   │   │   ├── novena.py
+│   │   │   ├── recipe.py
+│   │   │   ├── music.py
+│   │   │   └── game.py
+│   │   ├── services/
+│   │   │   ├── __init__.py
+│   │   │   ├── auth_service.py
+│   │   │   ├── novena_service.py
+│   │   │   ├── recipe_service.py
+│   │   │   ├── music_service.py
+│   │   │   └── game_service.py
 │   │   ├── middleware/
+│   │   │   ├── __init__.py
+│   │   │   ├── auth.py
+│   │   │   └── cors.py
 │   │   └── utils/
+│   │       ├── __init__.py
+│   │       ├── jwt.py
+│   │       └── email.py
 │   ├── migrations/
-│   └── package.json
+│   │   ├── 001_initial_schema.sql
+│   │   └── 002_recipe_ingredients_migration.sql
+│   └── tests/
+│       ├── __init__.py
+│       ├── test_auth.py
+│       ├── test_novena.py
+│       └── test_recipes.py
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
 │   │   ├── pages/
 │   │   ├── services/
 │   │   └── styles/
-│   └── package.json
+│   ├── package.json
+│   └── vite.config.js
 ├── docs/
 │   ├── api-spec.yaml
 │   └── user-stories.md
@@ -723,14 +833,17 @@ Parranda-navide-a-/
 ## 🧪 Testing
 
 ```bash
-# Tests del backend
-npm run test:api
+# Tests del backend (FastAPI)
+pytest backend/tests/
 
 # Tests del frontend
-npm run test:frontend
+cd frontend && npm run test
 
 # Tests de integración
-npm run test:e2e
+pytest tests/integration/
+
+# Tests con coverage
+pytest --cov=backend/app backend/tests/
 ```
 
 ## 🚀 Despliegue
@@ -740,13 +853,17 @@ npm run test:e2e
 # Build del frontend
 cd frontend && npm run build
 
-# Deploy del backend
-npm run deploy:production
+# Deploy del backend FastAPI
+gunicorn backend.app.main:app -w 4 -k uvicorn.workers.UvicornWorker
+
+# Con Docker
+docker-compose -f docker-compose.prod.yml up -d
 ```
 
 ### Staging
 ```bash
-npm run deploy:staging
+# Deploy a staging
+docker-compose -f docker-compose.staging.yml up -d
 ```
 
 ## 🤝 Contribución
