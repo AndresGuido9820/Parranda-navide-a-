@@ -1,0 +1,43 @@
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #f7f2f5;
+  background-color: #120d12;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #2a1f26 0%, #120d12 55%, #0b0609 100%);
+  color: inherit;
+}
+
+main {
+  display: block;
+}
+
+a {
+  font-weight: 500;
+  color: #f57364;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #fa9b86;
+}
+
+button {
+  font-family: inherit;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 3px solid rgba(250, 151, 134, 0.45);
+  outline-offset: 2px;
+}
