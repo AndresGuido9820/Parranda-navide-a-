@@ -1,22 +1,23 @@
 """Main FastAPI application."""
 
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .routers.auth import router as auth_router
+from app.domain.errors import ConflictError, NotFoundError, UnauthorizedError
 from app.infrastructure.config.settings import settings
 from app.interface.middleware.error_handler import (
-    http_exception_handler,
-    validation_exception_handler,
-    unauthorized_error_handler,
-    not_found_error_handler,
     conflict_error_handler,
-    general_exception_handler
+    general_exception_handler,
+    http_exception_handler,
+    not_found_error_handler,
+    unauthorized_error_handler,
+    validation_exception_handler,
 )
 from app.interface.middleware.logging_middleware import logging_middleware
-from app.domain.errors import UnauthorizedError, NotFoundError, ConflictError
+
+from .routers.auth import router as auth_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -57,7 +58,7 @@ async def root():
     return {
         "message": "¡Bienvenido a Parranda Navideña!",
         "version": "1.0.0",
-        "docs": "/docs"
+        "docs": "/docs",
     }
 
 
@@ -65,8 +66,3 @@ async def root():
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
-
-
-
-
-

@@ -1,41 +1,33 @@
 """Session domain entity."""
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
 
 
+@dataclass
 class Session:
     """User session domain entity."""
-    
-    def __init__(
-        self,
-        user_id: UUID,
-        session_token_hash: str,
-        expires_at: datetime,
-        user_agent: Optional[str] = None,
-        ip_address: Optional[str] = None,
-        id: Optional[UUID] = None,
-        created_at: Optional[datetime] = None,
-    ):
-        self.id = id or uuid4()
-        self.user_id = user_id
-        self.session_token_hash = session_token_hash
-        self.created_at = created_at or datetime.now()
-        self.expires_at = expires_at
-        self.user_agent = user_agent
-        self.ip_address = ip_address
-    
+
+    user_id: UUID
+    session_token_hash: str
+    expires_at: datetime
+    user_agent: Optional[str] = None
+    ip_address: Optional[str] = None
+    session_id: Optional[UUID] = field(default_factory=uuid4)
+    created_at: Optional[datetime] = field(default_factory=datetime.now)
+
     def is_expired(self) -> bool:
         """Check if session is expired."""
         return datetime.now() > self.expires_at
-    
+
     def __str__(self) -> str:
-        return f"Session(id={self.id}, user_id={self.user_id})"
-    
+        return f"Session(id={self.session_id}, user_id={self.user_id})"
+
     def __repr__(self) -> str:
         return self.__str__()
-    
+
     @classmethod
     def create(
         cls,

@@ -1,5 +1,6 @@
 """User domain entity."""
 
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 from uuid import UUID, uuid4
@@ -7,37 +8,26 @@ from uuid import UUID, uuid4
 from ..value_objects.email_address import EmailAddress
 
 
+@dataclass
 class User:
     """User domain entity."""
-    
-    def __init__(
-        self,
-        email: EmailAddress,
-        password_hash: Optional[str] = None,
-        full_name: Optional[str] = None,
-        alias: Optional[str] = None,
-        phone: Optional[str] = None,
-        is_active: bool = True,
-        id: Optional[UUID] = None,
-        created_at: Optional[datetime] = None,
-        updated_at: Optional[datetime] = None,
-    ):
-        self.id = id or uuid4()
-        self.email = email
-        self.password_hash = password_hash
-        self.full_name = full_name
-        self.alias = alias
-        self.phone = phone
-        self.is_active = is_active
-        self.created_at = created_at or datetime.now()
-        self.updated_at = updated_at or datetime.now()
-    
+
+    email: EmailAddress
+    password_hash: Optional[str] = None
+    full_name: Optional[str] = None
+    alias: Optional[str] = None
+    phone: Optional[str] = None
+    is_active: bool = True
+    user_id: Optional[UUID] = field(default_factory=uuid4)
+    created_at: Optional[datetime] = field(default_factory=datetime.now)
+    updated_at: Optional[datetime] = field(default_factory=datetime.now)
+
     def __str__(self) -> str:
-        return f"User(id={self.id}, email={self.email})"
-    
+        return f"User(id={self.user_id}, email={self.email})"
+
     def __repr__(self) -> str:
         return self.__str__()
-    
+
     @classmethod
     def create(
         cls,

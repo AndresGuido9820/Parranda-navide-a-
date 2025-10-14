@@ -7,4 +7,3 @@ This file is deprecated. Use the modular structure in the repositories/ director
 
 # Keep this file for backward compatibility
 # TODO: Remove this file once all imports are updated
-

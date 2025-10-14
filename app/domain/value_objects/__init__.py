@@ -1,6 +1,6 @@
 """Domain value objects package."""
 
-from .email_address import EmailAddress
 from .day_code import DayCode
+from .email_address import EmailAddress
 
-__all__ = ['EmailAddress', 'DayCode']
+__all__ = ["EmailAddress", "DayCode"]

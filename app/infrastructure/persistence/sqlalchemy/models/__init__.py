@@ -1,19 +1,15 @@
 """All models import."""
 
 from .base import Base
-from .user import User
-from .session import Session
 from .novena import NovenaDay, NovenaDaySection, UserNovenaProgress
+from .session import Session
+from .user import User
 
 __all__ = [
     "Base",
-    "User", 
+    "User",
     "Session",
     "NovenaDay",
-    "NovenaDaySection", 
-    "UserNovenaProgress"
+    "NovenaDaySection",
+    "UserNovenaProgress",
 ]
-
-
-
-

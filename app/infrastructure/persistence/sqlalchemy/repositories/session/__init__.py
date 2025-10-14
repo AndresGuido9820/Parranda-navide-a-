@@ -1,13 +1,14 @@
 """Session repository implementation using SQLAlchemy."""
 
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy.orm import Session
 from sqlalchemy import and_
+from sqlalchemy.orm import Session
 
 from app.domain.entities.session import Session as SessionEntity
+
 from ...models.session import Session as SessionORM
 
 
@@ -20,7 +21,7 @@ class SessionRepository:
     def add(self, session: SessionEntity) -> None:
         """Add a new session."""
         session_orm = SessionORM(
-            id=session.id,
+            id=session.session_id,
             user_id=session.user_id,
             session_token_hash=session.session_token_hash,
             created_at=session.created_at,
@@ -33,21 +34,27 @@ class SessionRepository:
 
     def get_by_id(self, session_id: UUID) -> Optional[SessionEntity]:
         """Get session by ID."""
-        session_orm = self.db.query(SessionORM).filter(SessionORM.id == session_id).first()
+        session_orm = (
+            self.db.query(SessionORM).filter(SessionORM.id == session_id).first()
+        )
         if not session_orm:
             return None
         return self._to_entity(session_orm)
 
     def get_by_user_id(self, user_id: UUID) -> List[SessionEntity]:
         """Get all sessions for a user."""
-        sessions_orm = self.db.query(SessionORM).filter(SessionORM.user_id == user_id).all()
+        sessions_orm = (
+            self.db.query(SessionORM).filter(SessionORM.user_id == user_id).all()
+        )
         return [self._to_entity(session_orm) for session_orm in sessions_orm]
 
     def get_by_token_hash(self, token_hash: str) -> Optional[SessionEntity]:
         """Get session by token hash."""
-        session_orm = self.db.query(SessionORM).filter(
-            SessionORM.session_token_hash == token_hash
-        ).first()
+        session_orm = (
+            self.db.query(SessionORM)
+            .filter(SessionORM.session_token_hash == token_hash)
+            .first()
+        )
         if not session_orm:
             return None
         return self._to_entity(session_orm)
@@ -55,17 +62,20 @@ class SessionRepository:
     def get_active_sessions(self, user_id: UUID) -> List[SessionEntity]:
         """Get active (non-expired) sessions for a user."""
         now = datetime.now(timezone.utc)
-        sessions_orm = self.db.query(SessionORM).filter(
-            and_(
-                SessionORM.user_id == user_id,
-                SessionORM.expires_at > now
-            )
-        ).all()
+        sessions_orm = (
+            self.db.query(SessionORM)
+            .filter(and_(SessionORM.user_id == user_id, SessionORM.expires_at > now))
+            .all()
+        )
         return [self._to_entity(session_orm) for session_orm in sessions_orm]
 
     def update(self, session: SessionEntity) -> None:
         """Update an existing session."""
-        session_orm = self.db.query(SessionORM).filter(SessionORM.id == session.id).first()
+        session_orm = (
+            self.db.query(SessionORM)
+            .filter(SessionORM.id == session.session_id)
+            .first()
+        )
         if session_orm:
             session_orm.session_token_hash = session.session_token_hash
             session_orm.expires_at = session.expires_at
@@ -75,7 +85,9 @@ class SessionRepository:
 
     def delete(self, session_id: UUID) -> None:
         """Delete a session."""
-        session_orm = self.db.query(SessionORM).filter(SessionORM.id == session_id).first()
+        session_orm = (
+            self.db.query(SessionORM).filter(SessionORM.id == session_id).first()
+        )
         if session_orm:
             self.db.delete(session_orm)
             self.db.commit()
@@ -96,7 +108,7 @@ class SessionRepository:
     def _to_entity(self, session_orm: SessionORM) -> SessionEntity:
         """Convert ORM to domain entity."""
         return SessionEntity(
-            id=session_orm.id,
+            session_id=session_orm.id,
             user_id=session_orm.user_id,
             session_token_hash=session_orm.session_token_hash,
             created_at=session_orm.created_at,
