@@ -1,5 +1,9 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useAuthWithQueries } from './entities/auth/hooks/useAuthHook'
 import { AuthPage, InicioPage } from './entities/auth'
+import { NovenasPage } from './entities/novenas/pages/NovenasPage'
+import { RecetasPage } from './entities/recetas/pages/RecetasPage'
+import { MusicaPage } from './entities/musica/pages/MusicaPage'
 
 export function App() {
   const { isAuthenticated, isLoading } = useAuthWithQueries()
@@ -21,5 +25,31 @@ export function App() {
     )
   }
 
-  return isAuthenticated ? <InicioPage /> : <AuthPage />
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route
+          path="/inicio"
+          element={isAuthenticated ? <InicioPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/novenas"
+          element={isAuthenticated ? <NovenasPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/recetas"
+          element={isAuthenticated ? <RecetasPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/musica"
+          element={isAuthenticated ? <MusicaPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/"
+          element={<Navigate to={isAuthenticated ? "/inicio" : "/auth"} />}
+        />
+      </Routes>
+    </BrowserRouter>
+  )
 }
