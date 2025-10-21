@@ -1,9 +1,11 @@
 import React from 'react';
 import { Card, CardBody, CardHeader, Button, Progress } from '@heroui/react';
+import { MainLayout } from '../../../shared/layouts/MainLayout';
 
 export const NovenasPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 p-4">
+    <MainLayout>
+      <div className="p-4">
       <div className="container mx-auto max-w-6xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-4">Novenas Navideñas</h1>
@@ -61,6 +63,7 @@ export const NovenasPage: React.FC = () => {
           ))}
         </div>
       </div>
-    </div>
+      </div>
+    </MainLayout>
   );
 };
