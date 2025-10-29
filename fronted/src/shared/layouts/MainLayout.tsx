@@ -13,7 +13,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({
   showUserInfo = true,
 }) => {
   return (
-    <div className="min-h-screen bg-gradient-to-tr from-amber-950 via-amber-950 to-black/90">
+    <div className="min-h-screen bg-[#2b0a0a]">
       {showHeader && <Header showUserInfo={showUserInfo} />}
       <main>{children}</main>
     </div>

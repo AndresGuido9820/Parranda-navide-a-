@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     jwt_expire_minutes: int = 1440
 
     # URLs
-    frontend_url: str = "http://localhost:3000"
+    frontend_url: str = "http://localhost:5173"
 
     # Environment
     environment: str = "development"

@@ -1,5 +1,5 @@
+import { Card, CardBody, Tab, Tabs } from '@heroui/react';
 import { useState } from 'react';
-import { Tabs, Tab, Card, CardBody } from '@heroui/react';
 import { LoginForm } from './LoginForm';
 import { RegisterForm } from './RegisterForm';
 
@@ -63,7 +63,7 @@ export const AuthContainer = () => {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           <Card className="bg-gray-800/50 backdrop-blur-sm shadow-2xl border border-gray-700/50">
-            <CardBody className="overflow-hidden">
+            <CardBody className="overflow-hidden ">
               <Tabs
                 fullWidth
                 aria-label="Tabs form"
@@ -71,10 +71,11 @@ export const AuthContainer = () => {
                 size="md"
                 onSelectionChange={(key) => setSelected(key as AuthMode)}
                 classNames={{
-                  tabList: "bg-gray-700/50 p-1 rounded-lg",
-                  tab: "text-gray-400 data-[selected=true]:text-white data-[selected=true]:bg-red-500",
-                  cursor: "bg-red-500",
-                  tabContent: "text-sm font-medium"
+                  tabList: "bg-gray-700/50 p-1 rounded-lg justify-center items-center",
+                  tab: "text-gray-400 data-[selected=true]:text-white data-[selected=true]:bg-gray-500",
+                  cursor: "hidden",
+                  tabContent: "text-sm font-medium",
+                  base: "pr-2 w-full items-center justify-center"
                 }}
               >
                 <Tab key="login" title="Ingresar">

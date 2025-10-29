@@ -2,6 +2,8 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
+ENV PYTHONPATH="/:$PYTHONPATH"
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \

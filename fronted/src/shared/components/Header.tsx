@@ -1,6 +1,7 @@
 import React from "react";
-import { useAuth } from "../../entities/auth/hooks/useAuthHook";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../entities/auth";
+import { UserMenu } from "./UserMenu";
 
 interface HeaderProps {
   showUserInfo?: boolean;
@@ -27,8 +28,12 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
     { label: "Dinámicas navideñas", path: "/dinamicas" },
   ];
 
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    user?.full_name || "U"
+  )}&background=random`;
+
   return (
-    <header className="bg-red-900/30 backdrop-blur-sm border-b border-red-800/50">
+    <header className="bg-red-900/30 backdrop-blur-sm border-b border-red-800/50 z-50 relative">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo */}
@@ -53,30 +58,20 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
             ))}
           </nav>
 
-          {/* User Info & Logout */}
-          {/* showUserInfo && user && */}
+          {/* User Info */}
           {showUserInfo && true && (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
-                  <img
-                    src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      user?.full_name || "U"
-                    )}&background=random`}
-                    alt="User avatar"
-                    className="w-full h-full rounded-full"
-                  />
-                </div>
-                <span className="text-white text-sm hidden lg:block">
-                  {user?.full_name || user?.alias}
-                </span>
-              </div>
-              <button
-                onClick={handleLogout}
-                className="text-red-300 hover:text-white transition-colors text-sm"
-              >
-                Cerrar Sesión
+            <div className="flex items-center gap-3">
+              <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-700 hover:bg-gray-600 transition-colors">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M15 17H9m7-1V9a4 4 0 10-8 0v7l-2 2h12l-2-2z" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M10 19a2 2 0 004 0" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round"/>
+                </svg>
               </button>
+              <UserMenu
+                user={user}
+                onLogout={handleLogout}
+                avatarUrl={avatarUrl}
+              />
             </div>
           )}
         </div>

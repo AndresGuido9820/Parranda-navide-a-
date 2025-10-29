@@ -34,7 +34,7 @@ app.middleware("http")(logging_middleware)
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url] if settings.frontend_url else ["*"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,7 +49,7 @@ app.add_exception_handler(ConflictError, conflict_error_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 
 # Include routers
-app.include_router(auth_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="")
 
 
 @app.get("/")

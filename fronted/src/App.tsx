@@ -1,12 +1,17 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAuthWithQueries } from './entities/auth/hooks/useAuthHook'
-import { AuthPage, InicioPage } from './entities/auth'
-import { NovenasPage } from './entities/novenas/pages/NovenasPage'
-import { RecetasPage } from './entities/recetas/pages/RecetasPage'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { AuthPage } from './entities/auth'
+import { useAuth } from './entities/auth/hooks/useAuth'
+import { DinamicasPage } from './entities/dinamicas'
+import { InicioPage } from './entities/inicio/pages/InicioPage'
 import { MusicaPage } from './entities/musica/pages/MusicaPage'
+import { NovenaDetailPage, NovenasPage } from './entities/novenas'
+import { CreateRecipePage, RecetasPage, RecipeDetailPage } from './entities/recetas'
+import { SoportePage } from './entities/soporte'
+import { queryClient } from './shared/api/queryClient'
 
-export function App() {
-  const { isAuthenticated, isLoading } = useAuthWithQueries()
+function AppContent() {
+  const { isAuthenticated, isLoading } = useAuth()
 
   if (isLoading) {
     return (
@@ -38,12 +43,32 @@ export function App() {
           element={isAuthenticated ? <NovenasPage /> : <Navigate to="/auth" />}
         />
         <Route
+          path="/novenas/:day"
+          element={isAuthenticated ? <NovenaDetailPage /> : <Navigate to="/auth" />}
+        />
+        <Route
           path="/recetas"
           element={isAuthenticated ? <RecetasPage /> : <Navigate to="/auth" />}
         />
         <Route
+          path="/recetas/create"
+          element={isAuthenticated ? <CreateRecipePage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/recetas/:id"
+          element={isAuthenticated ? <RecipeDetailPage /> : <Navigate to="/auth" />}
+        />
+        <Route
           path="/musica"
           element={isAuthenticated ? <MusicaPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/dinamicas"
+          element={isAuthenticated ? <DinamicasPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/soporte"
+          element={isAuthenticated ? <SoportePage /> : <Navigate to="/auth" />}
         />
         <Route
           path="/"
@@ -51,5 +76,13 @@ export function App() {
         />
       </Routes>
     </BrowserRouter>
+  )
+}
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AppContent />
+    </QueryClientProvider>
   )
 }

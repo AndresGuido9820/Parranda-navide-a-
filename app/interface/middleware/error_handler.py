@@ -14,12 +14,23 @@ logger = logging.getLogger(__name__)
 
 async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
     """Handle HTTP exceptions."""
+    message = (
+        exc.detail
+        if isinstance(exc.detail, str)
+        else exc.detail.get("message", "An error occurred")
+    )
+    errors = (
+        [str(exc.detail)]
+        if isinstance(exc.detail, str)
+        else exc.detail.get("errors", [str(exc.detail)])
+    )
+
     return JSONResponse(
         status_code=exc.status_code,
         content=ErrorResponse(
             success=False,
-            message=exc.detail.get("message", "An error occurred"),
-            errors=exc.detail.get("errors", [exc.detail]),
+            message=message,
+            errors=errors,
         ).dict(),
     )
 

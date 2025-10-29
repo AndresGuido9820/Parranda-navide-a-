@@ -1,9 +1,14 @@
+// Exportar componentes
 export * from './components';
-export { AuthProvider } from './hooks/useAuth';
-export { useAuth, useAuthWithQueries } from './hooks/useAuthHook';
-export * from './hooks/useAuthQueries';
-export * from './services/authService';
+
+// Exportar hooks (principalmente useAuth)
+export * from './hooks';
+
+// Exportar todos los services
+export * from './services';
+
+// Exportar tipos
 export * from './types';
-export * from './context/AuthContext';
-export * from './pages/AuthPage';
-export * from './pages/InicioPage';
+
+// Exportar páginas
+export * from './pages';

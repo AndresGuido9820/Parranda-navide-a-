@@ -1,27 +1,40 @@
+import { Button, Form, Input, Link } from '@heroui/react';
 import { useState } from 'react';
-import { Form, Input, Button, Checkbox, Link } from '@heroui/react';
-import { useAuthWithQueries } from '../hooks/useAuthHook';
-import type { LoginRequest } from '../types';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
 }
 
 export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
-  const { login, isLoggingIn, error, clearError } = useAuthWithQueries();
-  const [action, setAction] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { login, isLoggingIn, error } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    clearError();
-    
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData) as unknown as LoginRequest;
-    
-    setAction(`submit ${JSON.stringify(data)}`);
-    
+    setSuccessMessage('');
+
     try {
-      await login(data);
+      await login(formData);
+      setSuccessMessage('¡Sesión iniciada correctamente!');
+      
+      // Redirigir a inicio
+      navigate('/inicio');
     } catch (error) {
       console.error('Login error:', error);
     }
@@ -29,89 +42,98 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
 
   return (
     <Form
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-6"
+      autoComplete="on"
       onSubmit={handleSubmit}
     >
+      {/* Título */}
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-default-700">Iniciar Sesión</h2>
+        <p className="text-small text-default-500 mt-1">
+          Los campos marcados con <span className="text-danger">*</span> son obligatorios
+        </p>
+      </div>
+
+      {/* Email */}
       <Input
         isRequired
-        errorMessage="Por favor ingresa un email válido"
         label="Correo"
         placeholder="tucorreo@dominio.com"
         type="email"
         name="email"
+        value={formData.email}
+        onChange={handleChange}
+        autoComplete="email"
         disabled={isLoggingIn}
-        startContent={
-          <span className="text-default-400">✉️</span>
-        }
       />
 
-      <Input
-        isRequired
-        errorMessage="Por favor ingresa tu contraseña"
-        label="Contraseña"
-        placeholder="••••••••"
-        type="password"
-        name="password"
-        disabled={isLoggingIn}
-        startContent={
-          <span className="text-default-400">🔒</span>
-        }
-        endContent={
-          <button type="button" className="text-default-400 hover:text-default-600">
-            👁️
-          </button>
-        }
-      />
-
-      <div className="flex items-center justify-between">
-        <Checkbox
-          name="rememberMe"
-          color="danger"
+      {/* Contraseña con ícono mostrar/ocultar */}
+      <div className="flex flex-row gap-2">
+        <Input
+          isRequired
+          label="Contraseña"
+          autoComplete="current-password"
+          type={passwordVisible ? 'text' : 'password'}
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          placeholder="Escribe tu contraseña"
           disabled={isLoggingIn}
+          className="flex-1"
+        />
+        <button
+          type="button"
+          className="text-default-400 hover:text-default-600 self-end pb-2"
+          onClick={() => setPasswordVisible(!passwordVisible)}
+          tabIndex={-1}
         >
-          Recuérdame
-        </Checkbox>
-        
+          {passwordVisible ? '🙈' : '👁️'}
+        </button>
+      </div>
+
+      {/* Mensaje de Error del Backend */}
+      {error && (
+        <div className="animate-in fade-in duration-300 flex gap-3 p-4 rounded-lg bg-danger-50 border border-danger-200">
+          <span className="text-2xl">⚠️</span>
+          <div>
+            <p className="font-semibold text-danger-700">Error al iniciar sesión</p>
+            <p className="text-small text-danger-600">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Mensaje de Éxito */}
+      {successMessage && (
+        <div className="animate-in fade-in duration-300 flex gap-3 p-4 rounded-lg bg-success-50 border border-success-200">
+          <span className="text-2xl">✅</span>
+          <div>
+            <p className="font-semibold text-success-700">¡Bienvenido!</p>
+            <p className="text-small text-success-600">{successMessage}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Botón Enviar */}
+      <Button
+        color="danger"
+        type="submit"
+        fullWidth
+        size="lg"
+        isLoading={isLoggingIn}
+        disabled={isLoggingIn}
+        className="font-semibold"
+      >
+        {isLoggingIn ? 'Iniciando sesión...' : 'Ingresar'}
+      </Button>
+
+      {/* Link a Registro */}
+      <p className="text-center text-small text-gray-300">
+        ¿No tienes cuenta?{' '}
         <Link
           size="sm"
           color="danger"
-          className="cursor-pointer"
-        >
-          ¿Olvidaste tu contraseña?
-        </Link>
-      </div>
-      
-      {error && (
-        <div className="text-danger text-sm text-center bg-danger-50 p-3 rounded-lg border border-danger-200">
-          {error}
-        </div>
-      )}
-      
-      <div className="flex gap-2 justify-end">
-        <Button 
-          color="danger" 
-          type="submit"
-          fullWidth
-          isLoading={isLoggingIn}
-          disabled={isLoggingIn}
-        >
-          {isLoggingIn ? 'Iniciando sesión...' : 'Ingresar'}
-        </Button>
-      </div>
-      
-      {action && (
-        <div className="text-small text-default-500">
-          Action: <code>{action}</code>
-        </div>
-      )}
-      
-      <p className="text-center text-small text-gray-300">
-        ¿No tienes cuenta?{" "}
-        <Link 
-          size="sm" 
-          color="danger"
           onPress={onSwitchToRegister}
-          className="cursor-pointer"
+          className="cursor-pointer font-semibold"
         >
           Regístrate
         </Link>
