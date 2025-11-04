@@ -124,11 +124,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
     >
       {/* Título */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-default-700">Crear Cuenta</h2>
-        <p className="text-small text-default-500 mt-1">
-          Los campos marcados con <span className="text-danger">*</span> son
-          obligatorios
-        </p>
+        <h2 className="text-2xl font-bold text-default-700 text-white">Crear Cuenta</h2>
       </div>
 
       {/* Nombre Completo */}
@@ -137,7 +133,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.full_name}
           errorMessage={fieldErrors.full_name}
-        
+          className="bg-white rounded-lg"
           placeholder="Tu nombre completo"
           type="text"
           name="full_name"
@@ -164,6 +160,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           value={formData.email}
           onChange={handleChange}
           autoComplete="email"
+          className = "bg-white rounded-lg"  
           disabled={isRegistering}
           classNames={{
             errorMessage: 'text-red-600 font-bold text-base',
@@ -184,6 +181,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           value={formData.password}
           onChange={handleChange}
           autoComplete="new-password"
+          className = "bg-white rounded-lg"  
           disabled={isRegistering}
           endContent={<span className="text-default-400">🔒</span>}
           classNames={{
@@ -205,8 +203,10 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           value={formData.confirmPassword}
           onChange={handleChange}
           autoComplete="new-password"
+          className = "bg-white rounded-lg"  
           disabled={isRegistering}
-          endContent={<span className="text-default-400">🔒</span>}
+          endContent={<span 
+            className="text-default-400 ">🔒</span>}
           classNames={{
             errorMessage: 'text-red-600 font-bold text-base',
           }}
@@ -243,7 +243,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
         size="lg"
         isLoading={isRegistering}
         disabled={isRegistering}
-        className="font-semibold"
+        className="font-semibold mx-auto w-max bg-red-900 rounded-lg hover:bg-red-800"
         spinner={<Spinner size="sm" color="white" />}
       >
         {isRegistering ? 'Creando cuenta...' : 'Crear Cuenta'}

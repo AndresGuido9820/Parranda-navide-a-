@@ -50,16 +50,13 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
     >
       {/* Título */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-default-700">Iniciar Sesión</h2>
-        <p className="text-small text-default-500 mt-1">
-          Los campos marcados con <span className="text-danger">*</span> son obligatorios
-        </p>
+        <h2 className="text-2xl font-bold text-default-700 text-white">Iniciar Sesión</h2>
       </div>
 
       {/* Email */}
       <Input
         isRequired
-       
+        className = "bg-white rounded-lg"       
         placeholder="tucorreo@dominio.com"
         type="email"
         name="email"
@@ -73,7 +70,6 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
       <div className="flex flex-row gap-2">
         <Input
           isRequired
-         
           autoComplete="current-password"
           type={passwordVisible ? 'text' : 'password'}
           name="password"
@@ -81,7 +77,7 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
           onChange={handleChange}
           placeholder="Escribe tu contraseña **"
           disabled={isLoggingIn}
-          className="flex-1"
+          className="flex-1 bg-white rounded-lg"
         />
         <button
           type="button"
@@ -124,7 +120,7 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
         size="lg"
         isLoading={isLoggingIn}
         disabled={isLoggingIn}
-        className="font-semibold"
+        className="font-semibold mx-auto w-max bg-red-900 rounded-lg hover:bg-red-800"
         spinner={<Spinner size="sm" color="white" />}
       >
         {isLoggingIn ? 'Iniciando sesión...' : 'Ingresar'}

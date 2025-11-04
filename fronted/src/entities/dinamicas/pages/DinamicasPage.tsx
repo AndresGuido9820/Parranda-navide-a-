@@ -1,6 +1,8 @@
 import React from 'react';
+import {useNavigate} from 'react-router-dom';
 import { MainLayout } from '../../../shared/layouts/MainLayout';
 import { ActivityCard } from '../components';
+
 
 interface Activity {
   id: number;
@@ -16,8 +18,8 @@ const activities: Activity[] = [
   {
     id: 1,
     title: 'Quema del Año Viejo',
-    description: 'Ritual tradicional para cerrar ciclos y dar la bienvenida al nuevo año, con enfoque seguro y simbólico.',
-    image: 'https://images.unsplash.com/photo-1519167758481-83f29da2f084?w=800&q=80',
+    description: 'Ritual tradicional para cerrar ciclos y dar la bienvenida al nuevo año, sumérgete en la experiencia y revive momentos!',
+    image: 'https://i.ibb.co/sdKDg1wg/Gemini-Generated-Image-9gskg59gskg59gsk-1.png',
     duration: '25 min',
     participants: '2-20',
     age: '12+',
@@ -26,7 +28,7 @@ const activities: Activity[] = [
     id: 2,
     title: 'Encontrar al Niño Jesús',
     description: 'Búsqueda del tesoro temática: halla la figura del Niño Jesús siguiendo pistas por la casa.',
-    image: 'https://images.unsplash.com/photo-1482517967863-00e15c9b44be?w=800&q=80',
+    image: 'https://i.ibb.co/RTSzq3Kt/Gemini-Generated-Image-ctr8qmctr8qmctr8.png',
     duration: '15 min',
     participants: '2-12',
     age: '5+',
@@ -34,8 +36,14 @@ const activities: Activity[] = [
 ];
 
 export const DinamicasPage: React.FC = () => {
+  const navigate = useNavigate();
+
   const handleTryActivity = (activityId: number) => {
-    console.log('Trying activity:', activityId);
+    if (activityId === 2) {
+      navigate('/dinamicas/nino-jesus');
+    } else {
+      console.log('Trying activity:', activityId);
+    }
   };
 
   return (

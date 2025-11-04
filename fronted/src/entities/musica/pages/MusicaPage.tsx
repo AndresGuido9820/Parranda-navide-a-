@@ -43,7 +43,7 @@ export const MusicaPage: React.FC = () => {
       <main className="flex-grow container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            <h1 className="text-4xl font-bold text-white dark:text-white mb-2">
               Música Navideña
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
@@ -58,7 +58,7 @@ export const MusicaPage: React.FC = () => {
               />
             </div>
 
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            <h3 className="text-xl font-bold text-white dark:text-white mb-4">
               {shouldSearchYouTube ? 'Resultados de YouTube' : 'Busca canciones en YouTube'}
             </h3>
 
