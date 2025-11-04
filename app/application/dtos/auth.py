@@ -22,6 +22,13 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+    class Config:
+        """Pydantic config."""
+
+        json_schema_extra = {
+            "example": {"email": "usuario@ejemplo.com", "password": "contraseña123"}
+        }
+
 
 class MagicLinkRequest(BaseModel):
     """Magic link request."""

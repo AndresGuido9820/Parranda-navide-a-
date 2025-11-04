@@ -1,4 +1,4 @@
-import { Button, Form, Input, Link } from '@heroui/react';
+import { Button, Form, Input, Link, Spinner } from '@heroui/react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -31,11 +31,13 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
 
     try {
       await login(formData);
-      setSuccessMessage('¡Sesión iniciada correctamente!');
-      
-      // Redirigir a inicio
-      navigate('/inicio');
+      // Verificar que el token esté guardado antes de redirigir
+      if (localStorage.getItem('access_token')) {
+        navigate('/inicio');
+      }
     } catch (error) {
+      // El error ya está siendo manejado por el hook useAuth
+      // y se mostrará automáticamente en el componente
       console.error('Login error:', error);
     }
   };
@@ -57,13 +59,13 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
       {/* Email */}
       <Input
         isRequired
-        label="Correo"
+       
         placeholder="tucorreo@dominio.com"
         type="email"
         name="email"
         value={formData.email}
         onChange={handleChange}
-        autoComplete="email"
+        autoComplete="email **"
         disabled={isLoggingIn}
       />
 
@@ -71,20 +73,21 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
       <div className="flex flex-row gap-2">
         <Input
           isRequired
-          label="Contraseña"
+         
           autoComplete="current-password"
           type={passwordVisible ? 'text' : 'password'}
           name="password"
           value={formData.password}
           onChange={handleChange}
-          placeholder="Escribe tu contraseña"
+          placeholder="Escribe tu contraseña **"
           disabled={isLoggingIn}
           className="flex-1"
         />
         <button
           type="button"
-          className="text-default-400 hover:text-default-600 self-end pb-2"
+          className="text-default-400 hover:text-default-600 self-end pb-2 disabled:opacity-50 disabled:cursor-not-allowed"
           onClick={() => setPasswordVisible(!passwordVisible)}
+          disabled={isLoggingIn}
           tabIndex={-1}
         >
           {passwordVisible ? '🙈' : '👁️'}
@@ -122,6 +125,7 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
         isLoading={isLoggingIn}
         disabled={isLoggingIn}
         className="font-semibold"
+        spinner={<Spinner size="sm" color="white" />}
       >
         {isLoggingIn ? 'Iniciando sesión...' : 'Ingresar'}
       </Button>
@@ -133,7 +137,8 @@ export const LoginForm = ({ onSwitchToRegister }: LoginFormProps) => {
           size="sm"
           color="danger"
           onPress={onSwitchToRegister}
-          className="cursor-pointer font-semibold"
+          className={`cursor-pointer font-semibold ${isLoggingIn ? 'opacity-50 pointer-events-none' : ''}`}
+          isDisabled={isLoggingIn}
         >
           Regístrate
         </Link>

@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../../../../shared/layouts/MainLayout';
+import { Spinner } from '@heroui/react';
+import { useCreateRecipe } from '../../../services';
 import { ImageDropzone, RecipeStep, RecipeStepItem, TagInput } from './components';
 
 export const CreateRecipePage: React.FC = () => {
   const navigate = useNavigate();
+  const createRecipeMutation = useCreateRecipe();
   const [recipeName, setRecipeName] = useState('');
   const [alias, setAlias] = useState('');
+  const [category, setCategory] = useState<string>('');
+  const [yieldText, setYieldText] = useState('');
   const [ingredients, setIngredients] = useState<string[]>([]);
   const [steps, setSteps] = useState<RecipeStep[]>([
     {
@@ -50,24 +55,45 @@ export const CreateRecipePage: React.FC = () => {
     return steps.reduce((total, step) => total + step.time, 0);
   };
 
-  const handleSubmit = () => {
-    const payload = {
-      name: recipeName.trim(),
-      alias: alias.trim(),
-      ingredients,
-      steps: steps.map(step => ({
-        stepNumber: step.stepNumber,
-        time: step.time,
-        description: step.description,
-        ingredients: step.ingredients
-      })),
-      total_time_min: getTotalTime(),
-      images: uploadedFiles
-    };
-    
-    console.log('Recipe payload:', payload);
-    // Aquí iría la lógica para enviar la receta
-    alert('Receta preparada para enviar (ver consola).');
+  const handleSubmit = async () => {
+    // Validaciones básicas
+    if (!recipeName.trim()) {
+      alert('Por favor ingresa el nombre de la receta');
+      return;
+    }
+    if (!alias.trim()) {
+      alert('Por favor ingresa tu alias');
+      return;
+    }
+    if (steps.length === 0 || steps.some(step => !step.description.trim())) {
+      alert('Por favor completa todos los pasos');
+      return;
+    }
+
+    try {
+      const photoFile = uploadedFiles.length > 0 ? uploadedFiles[0] : undefined;
+      
+      await createRecipeMutation.mutateAsync({
+        title: recipeName.trim(),
+        author_alias: alias.trim(),
+        prep_time_minutes: getTotalTime(),
+        yield: yieldText.trim() || undefined,
+        category: category || undefined,
+        tags: ingredients.length > 0 ? ingredients.map(ing => `#${ing}`) : undefined,
+        steps: steps.map(step => ({
+          instruction_md: step.description.trim(),
+          ingredients_json: step.ingredients,
+          time_minutes: step.time,
+        })),
+        photo_file: photoFile,
+      });
+
+      // Navegar a la página de recetas después de crear
+      navigate('/recetas');
+    } catch (error) {
+      console.error('Error al crear la receta:', error);
+      alert('Error al crear la receta. Por favor intenta nuevamente.');
+    }
   };
 
   return (
@@ -112,6 +138,33 @@ export const CreateRecipePage: React.FC = () => {
                   value={alias}
                   onChange={(e) => setAlias(e.target.value)}
                   placeholder="Tu nombre para mostrar"
+                  className="w-full bg-[#0f0b0b] text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-[#f7a940]/55 focus:ring-3 focus:ring-[#f7a940]/12 outline-none transition-all"
+                />
+              </div>
+
+              {/* Category */}
+              <div className="space-y-2">
+                <label className="text-xs text-[#b9acac] font-medium">Categoría</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full bg-[#0f0b0b] text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-[#f7a940]/55 focus:ring-3 focus:ring-[#f7a940]/12 outline-none transition-all"
+                >
+                  <option value="">Selecciona una categoría</option>
+                  <option value="bebidas">Bebidas</option>
+                  <option value="postres">Postres</option>
+                  <option value="platos">Platos principales</option>
+                </select>
+              </div>
+
+              {/* Yield */}
+              <div className="space-y-2">
+                <label className="text-xs text-[#b9acac] font-medium">Rinde (opcional)</label>
+                <input
+                  type="text"
+                  value={yieldText}
+                  onChange={(e) => setYieldText(e.target.value)}
+                  placeholder="Ej: 8 porciones, 6 vasos"
                   className="w-full bg-[#0f0b0b] text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-[#f7a940]/55 focus:ring-3 focus:ring-[#f7a940]/12 outline-none transition-all"
                 />
               </div>
@@ -176,12 +229,22 @@ export const CreateRecipePage: React.FC = () => {
               </span>
               <button
                 onClick={handleSubmit}
-                className="inline-flex items-center gap-2 h-12 px-5 rounded-full bg-[#e74a3b] border border-white/6 text-white font-bold shadow-[0_12px_26px_rgba(231,74,59,0.35)] hover:shadow-[0_14px_30px_rgba(231,74,59,0.45)] active:bg-[#c83e31] transition-all"
+                disabled={createRecipeMutation.isPending}
+                className="inline-flex items-center gap-2 h-12 px-5 rounded-full bg-[#e74a3b] border border-white/6 text-white font-bold shadow-[0_12px_26px_rgba(231,74,59,0.35)] hover:shadow-[0_14px_30px_rgba(231,74,59,0.45)] active:bg-[#c83e31] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8 5l10 7-10 7V5z" fill="white"/>
-                </svg>
-                <span>Enviar Receta</span>
+                {createRecipeMutation.isPending ? (
+                  <>
+                    <Spinner size="sm" color="white" />
+                    <span>Creando...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M8 5l10 7-10 7V5z" fill="white"/>
+                    </svg>
+                    <span>Enviar Receta</span>
+                  </>
+                )}
               </button>
             </div>
           </div>

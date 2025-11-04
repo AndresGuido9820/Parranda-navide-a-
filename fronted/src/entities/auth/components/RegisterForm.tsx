@@ -1,6 +1,5 @@
-import { Button, Form, Input, Link } from '@heroui/react';
+import { Button, Form, Input, Link, Spinner } from '@heroui/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import type { RegisterRequest } from '../types';
 
@@ -9,7 +8,6 @@ interface RegisterFormProps {
 }
 
 export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
-  const navigate = useNavigate();
   const { register: registerUser, isRegistering, error } = useAuth();
   const [formData, setFormData] = useState({
     full_name: '',
@@ -139,7 +137,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.full_name}
           errorMessage={fieldErrors.full_name}
-          label="Nombre Completo"
+        
           placeholder="Tu nombre completo"
           type="text"
           name="full_name"
@@ -159,7 +157,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.email}
           errorMessage={fieldErrors.email}
-          label="Correo"
+      
           placeholder="tucorreo@dominio.com"
           type="email"
           name="email"
@@ -179,7 +177,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.password}
           errorMessage={fieldErrors.password}
-          label="Contraseña"
+       
           placeholder="Mínimo 6 caracteres"
           type="password"
           name="password"
@@ -187,7 +185,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           onChange={handleChange}
           autoComplete="new-password"
           disabled={isRegistering}
-          startContent={<span className="text-default-400">🔒</span>}
+          endContent={<span className="text-default-400">🔒</span>}
           classNames={{
             errorMessage: 'text-red-600 font-bold text-base',
           }}
@@ -200,7 +198,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.confirmPassword}
           errorMessage={fieldErrors.confirmPassword}
-          label="Confirmar Contraseña"
+         
           placeholder="Repite tu contraseña"
           type="password"
           name="confirmPassword"
@@ -208,7 +206,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           onChange={handleChange}
           autoComplete="new-password"
           disabled={isRegistering}
-          startContent={<span className="text-default-400">🔒</span>}
+          endContent={<span className="text-default-400">🔒</span>}
           classNames={{
             errorMessage: 'text-red-600 font-bold text-base',
           }}
@@ -246,6 +244,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
         isLoading={isRegistering}
         disabled={isRegistering}
         className="font-semibold"
+        spinner={<Spinner size="sm" color="white" />}
       >
         {isRegistering ? 'Creando cuenta...' : 'Crear Cuenta'}
       </Button>
@@ -257,7 +256,8 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           size="sm"
           color="danger"
           onPress={onSwitchToLogin}
-          className="cursor-pointer font-semibold"
+          className={`cursor-pointer font-semibold ${isRegistering ? 'opacity-50 pointer-events-none' : ''}`}
+          isDisabled={isRegistering}
         >
           Inicia sesión
         </Link>

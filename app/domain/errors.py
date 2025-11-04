@@ -4,7 +4,10 @@
 class DomainError(Exception):
     """Base domain error."""
 
-    pass
+    def __init__(self, message: str = ""):
+        """Initialize domain error with message."""
+        self.message = message
+        super().__init__(message)
 
 
 class NotFoundError(DomainError):
@@ -27,5 +30,5 @@ class UnauthorizedError(DomainError):
 
 class ValidationError(DomainError):
     """Validation error."""
-    pass
 
+    pass

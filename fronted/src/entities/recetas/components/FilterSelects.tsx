@@ -1,4 +1,5 @@
 import React from 'react';
+import { Select, SelectItem } from '@heroui/react';
 
 const categorias = [
   { key: 'all', label: 'Todas' },
@@ -9,6 +10,7 @@ const categorias = [
 
 const ordenamiento = [
   { key: 'reciente', label: 'Más recientes' },
+  { key: 'nombre', label: 'Por nombre' },
   { key: 'popular', label: 'Más populares' },
   { key: 'rating', label: 'Mejor calificadas' },
 ];
@@ -28,45 +30,61 @@ export const FilterSelects: React.FC<FilterSelectsProps> = ({
 }) => {
   return (
     <div className="flex gap-4 items-end">
-      <select
-        value={selectedCategory}
-        onChange={(e) => onCategoryChange(e.target.value)}
-        className="h-7 px-2 bg-transparent text-sm font-medium text-white appearance-none cursor-pointer focus:outline-none"
-        style={{
-          backgroundImage: "url('data:image/svg+xml;utf8,<svg fill=\"%23374151\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>')",
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'right center',
-          backgroundSize: '16px',
-          paddingRight: '22px'
+      <Select
+        selectedKeys={selectedCategory ? [selectedCategory] : []}
+        onSelectionChange={(keys) => {
+          const value = Array.from(keys)[0] as string;
+          onCategoryChange(value || '');
+        }}
+        placeholder="Categorías"
+        size="sm"
+        className="min-w-[140px]"
+        classNames={{
+          trigger: 'bg-gray-500/30 hover:bg-gray-500/40 border-0 text-white',
+          value: 'text-white text-sm font-medium',
+          popoverContent: 'bg-gray-700',
+          selectorIcon: 'hidden',
+        }}
+        listboxProps={{
+          itemClasses: {
+            base: 'text-white data-[hover=true]:bg-gray-600',
+          },
         }}
       >
-        <option value="" className="text-gray-700">Categorías</option>
         {categorias.map((cat) => (
-          <option key={cat.key} value={cat.key}>
+          <SelectItem key={cat.key} value={cat.key} textValue={cat.label}>
             {cat.label}
-          </option>
+          </SelectItem>
         ))}
-      </select>
+      </Select>
 
-      <select
-        value={selectedOrder}
-        onChange={(e) => onOrderChange(e.target.value)}
-        className="h-7 px-2 bg-transparent text-sm font-medium text-white appearance-none cursor-pointer focus:outline-none"
-        style={{
-          backgroundImage: "url('data:image/svg+xml;utf8,<svg fill=\"%23374151\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M7 10l5 5 5-5z\"/></svg>')",
-          backgroundRepeat: 'no-repeat',
-          backgroundPosition: 'right center',
-          backgroundSize: '16px',
-          paddingRight: '22px'
+      <Select
+        selectedKeys={selectedOrder ? [selectedOrder] : []}
+        onSelectionChange={(keys) => {
+          const value = Array.from(keys)[0] as string;
+          onOrderChange(value || '');
+        }}
+        placeholder="Ordenar"
+        size="sm"
+        className="min-w-[140px]"
+        classNames={{
+          trigger: 'bg-gray-500/30 hover:bg-gray-500/40 border-0 text-white',
+          value: 'text-white text-sm font-medium',
+          popoverContent: 'bg-gray-700',
+          selectorIcon: 'hidden',
+        }}
+        listboxProps={{
+          itemClasses: {
+            base: 'text-white data-[hover=true]:bg-gray-600',
+          },
         }}
       >
-        <option value="" className="text-gray-700">Ordenar</option>
         {ordenamiento.map((orden) => (
-          <option key={orden.key} value={orden.key}>
+          <SelectItem key={orden.key} value={orden.key} textValue={orden.label}>
             {orden.label}
-          </option>
+          </SelectItem>
         ))}
-      </select>
+      </Select>
     </div>
   );
 };

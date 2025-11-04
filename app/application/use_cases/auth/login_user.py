@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from app.application.dtos.auth import AuthResponse, LoginRequest, UserResponse
 from app.application.ports.repositories.user_repository import UserRepository
 from app.domain.entities.session import Session as SessionEntity
+from app.domain.errors import UnauthorizedError, ValidationError
 from app.domain.value_objects.email_address import EmailAddress
 from app.infrastructure.persistence.sqlalchemy.repositories.session import (
     SessionRepository,
@@ -28,20 +29,27 @@ class LoginUserUseCase:
 
     def execute(self, request: LoginRequest) -> AuthResponse:
         """Execute user login."""
+        # Validate required fields
+        if not request.email or not request.email.strip():
+            raise ValidationError("El correo electrónico es requerido")
+
+        if not request.password or not request.password.strip():
+            raise ValidationError("La contraseña es requerida")
+
         # Get user by email
         user = self.user_repository.get_by_email(EmailAddress(request.email))
         if not user:
-            raise ValueError("Invalid email or password")
+            raise UnauthorizedError("Correo electrónico o contraseña incorrectos")
 
         # Check if user is active
         if not user.is_active:
-            raise ValueError("User account is deactivated")
+            raise UnauthorizedError("La cuenta de usuario está desactivada")
 
         # Verify password
         if not user.password_hash or not verify_password(
             request.password, user.password_hash
         ):
-            raise ValueError("Invalid email or password")
+            raise UnauthorizedError("Correo electrónico o contraseña incorrectos")
 
         # Create token pair
         token_data = {
