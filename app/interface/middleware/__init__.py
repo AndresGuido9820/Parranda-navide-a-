@@ -6,6 +6,7 @@ from .error_handler import (
     http_exception_handler,
     not_found_error_handler,
     unauthorized_error_handler,
+    validation_domain_error_handler,
     validation_exception_handler,
 )
 from .logging_middleware import logging_middleware
@@ -13,6 +14,7 @@ from .logging_middleware import logging_middleware
 __all__ = [
     "http_exception_handler",
     "validation_exception_handler",
+    "validation_domain_error_handler",
     "unauthorized_error_handler",
     "not_found_error_handler",
     "conflict_error_handler",

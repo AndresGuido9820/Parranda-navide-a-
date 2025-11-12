@@ -7,7 +7,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from app.application.dtos.response import ErrorResponse
-from app.domain.errors import ConflictError, NotFoundError, UnauthorizedError
+from app.domain.errors import (
+    ConflictError,
+    NotFoundError,
+    UnauthorizedError,
+    ValidationError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -56,10 +61,11 @@ async def unauthorized_error_handler(
     request: Request, exc: UnauthorizedError
 ) -> JSONResponse:
     """Handle unauthorized errors."""
+    error_message = str(exc) if str(exc) else "No autorizado"
     return JSONResponse(
         status_code=401,
         content=ErrorResponse(
-            success=False, message="Unauthorized", errors=[str(exc)]
+            success=False, message=error_message, errors=[error_message]
         ).dict(),
     )
 
@@ -76,10 +82,24 @@ async def not_found_error_handler(request: Request, exc: NotFoundError) -> JSONR
 
 async def conflict_error_handler(request: Request, exc: ConflictError) -> JSONResponse:
     """Handle conflict errors."""
+    error_message = str(exc) if str(exc) else "Conflicto"
     return JSONResponse(
         status_code=409,
         content=ErrorResponse(
-            success=False, message="Conflict", errors=[str(exc)]
+            success=False, message=error_message, errors=[error_message]
+        ).dict(),
+    )
+
+
+async def validation_domain_error_handler(
+    request: Request, exc: ValidationError
+) -> JSONResponse:
+    """Handle domain validation errors."""
+    error_message = str(exc) if str(exc) else "Error de validación"
+    return JSONResponse(
+        status_code=400,
+        content=ErrorResponse(
+            success=False, message=error_message, errors=[error_message]
         ).dict(),
     )
 

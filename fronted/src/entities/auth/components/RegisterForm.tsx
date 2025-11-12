@@ -1,6 +1,5 @@
-import { Button, Form, Input, Link } from '@heroui/react';
+import { Button, Form, Input, Link, Spinner } from '@heroui/react';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import type { RegisterRequest } from '../types';
 
@@ -9,7 +8,6 @@ interface RegisterFormProps {
 }
 
 export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
-  const navigate = useNavigate();
   const { register: registerUser, isRegistering, error } = useAuth();
   const [formData, setFormData] = useState({
     full_name: '',
@@ -126,11 +124,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
     >
       {/* Título */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-default-700">Crear Cuenta</h2>
-        <p className="text-small text-default-500 mt-1">
-          Los campos marcados con <span className="text-danger">*</span> son
-          obligatorios
-        </p>
+        <h2 className="text-2xl font-bold text-default-700 text-white">Crear Cuenta</h2>
       </div>
 
       {/* Nombre Completo */}
@@ -139,7 +133,7 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.full_name}
           errorMessage={fieldErrors.full_name}
-          label="Nombre Completo"
+          className="bg-white rounded-lg"
           placeholder="Tu nombre completo"
           type="text"
           name="full_name"
@@ -159,13 +153,14 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.email}
           errorMessage={fieldErrors.email}
-          label="Correo"
+      
           placeholder="tucorreo@dominio.com"
           type="email"
           name="email"
           value={formData.email}
           onChange={handleChange}
           autoComplete="email"
+          className = "bg-white rounded-lg"  
           disabled={isRegistering}
           classNames={{
             errorMessage: 'text-red-600 font-bold text-base',
@@ -179,15 +174,16 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.password}
           errorMessage={fieldErrors.password}
-          label="Contraseña"
+       
           placeholder="Mínimo 6 caracteres"
           type="password"
           name="password"
           value={formData.password}
           onChange={handleChange}
           autoComplete="new-password"
+          className = "bg-white rounded-lg"  
           disabled={isRegistering}
-          startContent={<span className="text-default-400">🔒</span>}
+          endContent={<span className="text-default-400">🔒</span>}
           classNames={{
             errorMessage: 'text-red-600 font-bold text-base',
           }}
@@ -200,15 +196,17 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           isRequired
           isInvalid={!!fieldErrors.confirmPassword}
           errorMessage={fieldErrors.confirmPassword}
-          label="Confirmar Contraseña"
+         
           placeholder="Repite tu contraseña"
           type="password"
           name="confirmPassword"
           value={formData.confirmPassword}
           onChange={handleChange}
           autoComplete="new-password"
+          className = "bg-white rounded-lg"  
           disabled={isRegistering}
-          startContent={<span className="text-default-400">🔒</span>}
+          endContent={<span 
+            className="text-default-400 ">🔒</span>}
           classNames={{
             errorMessage: 'text-red-600 font-bold text-base',
           }}
@@ -245,7 +243,8 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
         size="lg"
         isLoading={isRegistering}
         disabled={isRegistering}
-        className="font-semibold"
+        className="font-semibold mx-auto w-max bg-red-900 rounded-lg hover:bg-red-800"
+        spinner={<Spinner size="sm" color="white" />}
       >
         {isRegistering ? 'Creando cuenta...' : 'Crear Cuenta'}
       </Button>
@@ -257,7 +256,8 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
           size="sm"
           color="danger"
           onPress={onSwitchToLogin}
-          className="cursor-pointer font-semibold"
+          className={`cursor-pointer font-semibold ${isRegistering ? 'opacity-50 pointer-events-none' : ''}`}
+          isDisabled={isRegistering}
         >
           Inicia sesión
         </Link>

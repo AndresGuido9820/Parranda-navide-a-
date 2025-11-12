@@ -90,12 +90,12 @@ export const NovenaDetailPage: React.FC = () => {
               <path clipRule="evenodd" d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z" fill="currentColor" fillRule="evenodd" />
             </svg>
           </div>
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white">Navidad Mágica</h2>
+          <h2 className="text-xl font-bold text-gray-300 dark:text-white">Navidad Mágica</h2>
         </div>
         <div className="flex items-center gap-4">
           <button
             onClick={handleBackToNovenas}
-            className="text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary"
+            className="text-sm font-bold text-gray-300 dark:text-gray-300 hover:text-primary"
           >
             ← Volver a Novenas
           </button>
@@ -104,15 +104,15 @@ export const NovenaDetailPage: React.FC = () => {
 
       <main className="flex flex-1 flex-col items-center justify-center py-24 px-4 sm:px-6 lg:px-8">
         <div className="w-full max-w-3xl space-y-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900 dark:text-white">
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-white dark:text-white">
             Día {novena.day}: {novena.title}
           </h1>
-          <p className="mt-4 text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="mt-4 text-lg text-red-400 dark:text-gray-400 max-w-2xl mx-auto">
             Comencemos esta hermosa tradición con fe y alegría.
           </p>
 
           <div className="mt-16">
-            <p className="text-base leading-relaxed text-justify text-gray-700 dark:text-gray-300">
+            <p className="text-base leading-relaxed text-justify text-white font-bold dark:text-gray-300">
               {novena.content}
             </p>
           </div>
