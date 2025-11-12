@@ -9,6 +9,7 @@ interface UserMenuProps {
   } | null;
   onLogout: () => void;
   avatarUrl: string;
+  onCloseMobileMenu?: () => void;
 }
 
 // SVG Icons
@@ -28,19 +29,19 @@ const DeleteIcon = () => (
 
 const SupportIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 12a8 8 0 1116 0v5a2 2 0 01-2 2h-4v-5h6" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M4 12h6v5H6a2 2 0 01-2-2v-3z" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round"/>
+    <path d="M4 12a8 8 0 1116 0v5a2 2 0 01-2 2h-4v-5h6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M4 12h6v5H6a2 2 0 01-2-2v-3z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
   </svg>
 );
 
 const ProfileIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="8" r="3.2" stroke="#e9dede" strokeWidth="1.6"/>
-    <path d="M5 19a7 7 0 0114 0" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round"/>
+    <circle cx="12" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.6"/>
+    <path d="M5 19a7 7 0 0114 0" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
   </svg>
 );
 
-export const UserMenu: React.FC<UserMenuProps> = ({ onLogout, avatarUrl }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ onLogout, avatarUrl, onCloseMobileMenu }) => {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -86,15 +87,17 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onLogout, avatarUrl }) => {
 
   const handleLogout = () => {
     setIsOpen(false);
+    onCloseMobileMenu?.();
     onLogout();
   };
 
   const handleMenuAction = (action: string) => {
     setIsOpen(false);
+    onCloseMobileMenu?.();
     if (action === 'support') {
       navigate('/soporte');
     } else if (action === 'profile') {
-      alert('Perfil - Próximamente');
+      navigate('/my-account');
     } else if (action === 'delete') {
       if (confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')) {
         alert('Eliminar cuenta - Próximamente');
@@ -125,62 +128,62 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onLogout, avatarUrl }) => {
           id="userMenu"
           role="menu"
           aria-label="Menú de usuario"
-          className="fixed top-[72px] right-[18px] w-[260px] bg-[#171111] border border-red-500/22 rounded-[16px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-2 z-[9999] transition-all opacity-100"
+          className="fixed bottom-[52px] md:bottom-[-200px] right-[18px] w-[260px] bg-[#171111] border border-red-500/22 rounded-[16px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-2 z-[9999] transition-all opacity-100"
           style={{
             transition: 'opacity 0.18s ease, transform 0.18s ease'
           }}
         >
-        {/* Salir */}
-        <button
-          onClick={handleLogout}
-          className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#efe3e3] hover:bg-white/6 outline-none transition-colors"
-          role="menuitem"
-        >
-          <span className="grid place-items-center">
-            <LogoutIcon />
-          </span>
-          <span>Salir</span>
-        </button>
+          {/* Salir */}
+          <button
+            onClick={handleLogout}
+            className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#efe3e3] hover:bg-white/6 outline-none transition-colors"
+            role="menuitem"
+          >
+            <span className="grid place-items-center">
+              <LogoutIcon />
+            </span>
+            <span>Salir</span>
+          </button>
 
-        {/* Eliminar cuenta */}
-        <button
-          onClick={() => handleMenuAction('delete')}
-          className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#e74a3b] hover:bg-[#ff6765]/10 outline-none transition-colors"
-          role="menuitem"
-        >
-          <span className="grid place-items-center">
-            <DeleteIcon />
-          </span>
-          <span>Eliminar cuenta</span>
-        </button>
+          {/* Eliminar cuenta */}
+          <button
+            onClick={() => handleMenuAction('delete')}
+            className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#e74a3b] hover:bg-[#ff6765]/10 outline-none transition-colors"
+            role="menuitem"
+          >
+            <span className="grid place-items-center">
+              <DeleteIcon />
+            </span>
+            <span>Eliminar cuenta</span>
+          </button>
 
-        {/* Divider */}
-        <div className="h-px bg-gradient-to-r from-white/3 via-white/8 to-white/3 my-1" aria-hidden="true"></div>
+          {/* Divider */}
+          <div className="h-px bg-gradient-to-r from-white/3 via-white/8 to-white/3 my-1" aria-hidden="true"></div>
 
-        {/* Soporte */}
-        <button
-          onClick={() => handleMenuAction('support')}
-          className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#efe3e3] hover:bg-white/6 outline-none transition-colors"
-          role="menuitem"
-        >
-          <span className="grid place-items-center">
-            <SupportIcon />
-          </span>
-          <span>Soporte</span>
-        </button>
+          {/* Soporte */}
+          <button
+            onClick={() => handleMenuAction('support')}
+            className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#efe3e3] hover:bg-white/6 outline-none transition-colors"
+            role="menuitem"
+          >
+            <span className="grid place-items-center">
+              <SupportIcon />
+            </span>
+            <span>Soporte</span>
+          </button>
 
-        {/* Perfil */}
-        <button
-          onClick={() => handleMenuAction('profile')}
-          className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#efe3e3] hover:bg-white/6 outline-none transition-colors"
-          role="menuitem"
-        >
-          <span className="grid place-items-center">
-            <ProfileIcon />
-          </span>
-          <span>Perfil</span>
-        </button>
-      </div>
+          {/* Perfil */}
+          <button
+            onClick={() => handleMenuAction('profile')}
+            className="grid grid-cols-[22px_1fr] items-center gap-2 px-3 py-2 rounded-xl cursor-pointer text-[#efe3e3] hover:bg-white/6 outline-none transition-colors"
+            role="menuitem"
+          >
+            <span className="grid place-items-center">
+              <ProfileIcon />
+            </span>
+            <span>Perfil</span>
+          </button>
+        </div>
       )}
     </>
   );
