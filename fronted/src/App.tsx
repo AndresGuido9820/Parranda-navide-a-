@@ -1,5 +1,6 @@
 import { QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { EditAccountPage, MyAccountPage } from './entities/account'
 import { AuthPage } from './entities/auth'
 import { useAuth } from './entities/auth/hooks/useAuth'
 import { DinamicasPage } from './entities/dinamicas'
@@ -74,6 +75,14 @@ function AppContent() {
         <Route
           path="/soporte"
           element={isAuthenticated ? <SoportePage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/my-account"
+          element={isAuthenticated ? <MyAccountPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/my-account/edit"
+          element={isAuthenticated ? <EditAccountPage /> : <Navigate to="/auth" />}
         />
         <Route
           path="/"
