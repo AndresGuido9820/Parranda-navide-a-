@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #ea2a33;
+  --color-background-light: #f8f6f6;
+  --color-background-dark: #211111;
+}
+
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-primary\/90 {
+  background-color: rgba(234, 42, 51, 0.9);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.hover\:bg-primary:hover {
+  background-color: var(--color-primary);
+}
+
+.hover\:bg-primary\/90:hover {
+  background-color: rgba(234, 42, 51, 0.9);
+}
+
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+
+.bg-background-light {
+  background-color: var(--color-background-light);
+}
+
+.bg-background-dark {
+  background-color: var(--color-background-dark);
+}
+
+.font-display {
+  font-family: "Epilogue", sans-serif;
+}
+
+.song-item:hover .drag-handle {
+  opacity: 1;
+}
+
+.dragging {
+  opacity: 0.5;
+  outline: 2px dashed #ea2a33;
+  background-color: rgba(234, 42, 51, 0.2);
+}
+
+.drop-zone-active {
+  outline: 2px dashed #ea2a33;
+  background-color: rgba(234, 42, 51, 0.1);
+}
