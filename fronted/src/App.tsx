@@ -2,8 +2,7 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthPage } from './entities/auth'
 import { useAuth } from './entities/auth/hooks/useAuth'
-import { DinamicasPage } from './entities/dinamicas'
-import { NinoJesusPage } from './entities/dinamicas'
+import { AnoViejoPage, DinamicasPage, NinoJesusPage } from './entities/dinamicas'
 import { InicioPage } from './entities/inicio/pages/InicioPage'
 import { MusicaPage } from './entities/musica/pages/MusicaPage'
 import { NovenaDetailPage, NovenasPage } from './entities/novenas'
@@ -70,6 +69,10 @@ function AppContent() {
         <Route
           path="/dinamicas/nino-jesus"
           element={isAuthenticated ? <NinoJesusPage /> : <Navigate to="/auth" />}
+        />
+        <Route
+          path="/dinamicas/ano-viejo"
+          element={isAuthenticated ? <AnoViejoPage /> : <Navigate to="/auth" />}
         />
         <Route
           path="/soporte"

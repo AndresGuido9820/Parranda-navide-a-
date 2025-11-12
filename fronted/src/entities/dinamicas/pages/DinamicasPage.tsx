@@ -1,5 +1,5 @@
 import React from 'react';
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../../shared/layouts/MainLayout';
 import { ActivityCard } from '../components';
 
@@ -39,7 +39,9 @@ export const DinamicasPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleTryActivity = (activityId: number) => {
-    if (activityId === 2) {
+    if (activityId === 1) {
+      navigate('/dinamicas/ano-viejo');
+    } else if (activityId === 2) {
       navigate('/dinamicas/nino-jesus');
     } else {
       console.log('Trying activity:', activityId);
