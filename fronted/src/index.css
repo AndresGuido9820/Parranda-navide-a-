@@ -1,43 +1,62 @@
+@import "tailwindcss";
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  color: #f7f2f5;
-  background-color: #120d12;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-primary: #ea2a33;
+  --color-background-light: #f8f6f6;
+  --color-background-dark: #211111;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background: radial-gradient(circle at top, #2a1f26 0%, #120d12 55%, #0b0609 100%);
-  color: inherit;
+.bg-primary {
+  background-color: var(--color-primary);
 }
 
-main {
-  display: block;
+.bg-primary\/90 {
+  background-color: rgba(234, 42, 51, 0.9);
 }
 
-a {
-  font-weight: 500;
-  color: #f57364;
-  text-decoration: none;
+.text-primary {
+  color: var(--color-primary);
 }
 
-a:hover {
-  color: #fa9b86;
+.border-primary {
+  border-color: var(--color-primary);
 }
 
-button {
-  font-family: inherit;
+.hover\:bg-primary:hover {
+  background-color: var(--color-primary);
 }
 
-button:focus,
-button:focus-visible {
-  outline: 3px solid rgba(250, 151, 134, 0.45);
-  outline-offset: 2px;
+.hover\:bg-primary\/90:hover {
+  background-color: rgba(234, 42, 51, 0.9);
+}
+
+.hover\:text-primary:hover {
+  color: var(--color-primary);
+}
+
+.bg-background-light {
+  background-color: var(--color-background-light);
+}
+
+.bg-background-dark {
+  background-color: var(--color-background-dark);
+}
+
+.font-display {
+  font-family: "Epilogue", sans-serif;
+}
+
+.song-item:hover .drag-handle {
+  opacity: 1;
+}
+
+.dragging {
+  opacity: 0.5;
+  outline: 2px dashed #ea2a33;
+  background-color: rgba(234, 42, 51, 0.2);
+}
+
+.drop-zone-active {
+  outline: 2px dashed #ea2a33;
+  background-color: rgba(234, 42, 51, 0.1);
 }
