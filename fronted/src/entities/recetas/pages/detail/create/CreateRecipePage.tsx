@@ -98,24 +98,24 @@ export const CreateRecipePage: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="max-w-[1120px] mx-auto px-4 py-14 pb-20">
+      <div className="max-w-[1120px] mx-auto px-3 sm:px-4 md:px-6 py-6 sm:py-10 md:py-14 pb-12 sm:pb-16 md:pb-20">
         {/* Breadcrumbs */}
-        <div className="text-[#b9acac] text-sm tracking-wide opacity-90 mb-2">
+        <div className="text-[#b9acac] text-xs sm:text-sm tracking-wide opacity-90 mb-2">
           Recetas / <strong className="text-[#f0f0f0]">Buñuelos de Navidad</strong>
         </div>
 
         {/* Header */}
-        <h1 className="text-[30px] font-bold text-[#f0f0f0] mb-1">
+        <h1 className="text-xl sm:text-2xl md:text-[30px] font-bold text-[#f0f0f0] mb-1">
           ¡Comparte tu propia receta!
         </h1>
-        <p className="text-[#b9acac] mb-4">
+        <p className="text-[#b9acac] text-sm sm:text-base mb-3 sm:mb-4">
           ¿Tienes una versión especial de esta receta o una nueva para compartir? ¡Nos encantaría verla!
         </p>
 
         {/* Main Panel */}
-        <div className="bg-[#171111] border border-red-500/22 rounded-[18px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-6">
+        <div className="bg-[#171111] border border-red-500/22 rounded-[18px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-4 sm:p-5 md:p-6">
           {/* Top Grid */}
-          <div className="grid grid-cols-[1.1fr_0.9fr] gap-6 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-4 sm:gap-5 md:gap-6 mb-4">
             {/* Left Column */}
             <div className="space-y-4">
               {/* Recipe Name */}
@@ -173,9 +173,9 @@ export const CreateRecipePage: React.FC = () => {
               <TagInput
                 tags={ingredients}
                 onTagsChange={setIngredients}
-                label="Ingredientes (como tags)"
-                placeholder="Escribe y presiona Enter"
-                hint="Escribe un ingrediente y presiona Enter. Clic en × para quitar."
+                label="Ingrediente principal"
+                placeholder="Escribe ingrediente y presiona Enter"
+                hint="Escribe ingrediente y presiona Enter"
               />
             </div>
 
@@ -194,11 +194,11 @@ export const CreateRecipePage: React.FC = () => {
           </div>
 
           {/* Steps Section */}
-          <div className="grid grid-cols-[1.1fr_0.9fr] gap-6 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-4 sm:gap-5 md:gap-6 mt-4">
             <div></div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <label className="text-xs text-[#b9acac] font-medium">Pasos (con tiempo e ingredientes por paso)</label>
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {steps.map((step) => (
                   <RecipeStepItem
                     key={step.id}
@@ -212,25 +212,25 @@ export const CreateRecipePage: React.FC = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-between mt-6">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 mt-4 sm:mt-6">
             <button
               onClick={addStep}
-              className="inline-flex items-center gap-2 px-3 py-2 bg-[#241616] border border-white/8 text-white rounded-xl hover:bg-[#2a1919] transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-3 py-2 bg-[#241616] border border-white/8 text-white rounded-xl hover:bg-[#2a1919] transition-colors text-sm w-full sm:w-auto"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg width="16" height="16" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 5v14M5 12h14" stroke="#e7d6d6" strokeWidth="1.8" strokeLinecap="round"/>
               </svg>
               <span>Añadir paso</span>
             </button>
 
-            <div className="flex items-center gap-4">
-              <span className="text-[#b9acac] text-sm">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <span className="text-[#b9acac] text-xs sm:text-sm text-center sm:text-left">
                 Tiempo total: {getTotalTime()} min
               </span>
               <button
                 onClick={handleSubmit}
                 disabled={createRecipeMutation.isPending}
-                className="inline-flex items-center gap-2 h-12 px-5 rounded-full bg-[#e74a3b] border border-white/6 text-white font-bold shadow-[0_12px_26px_rgba(231,74,59,0.35)] hover:shadow-[0_14px_30px_rgba(231,74,59,0.45)] active:bg-[#c83e31] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="inline-flex items-center justify-center gap-2 h-10 sm:h-12 px-4 sm:px-5 rounded-full bg-[#e74a3b] border border-white/6 text-white font-bold shadow-[0_12px_26px_rgba(231,74,59,0.35)] hover:shadow-[0_14px_30px_rgba(231,74,59,0.45)] active:bg-[#c83e31] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base w-full sm:w-auto"
               >
                 {createRecipeMutation.isPending ? (
                   <>

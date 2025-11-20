@@ -20,19 +20,17 @@ export const FAQItem: React.FC<FAQItemProps> = ({ id, question, answer }) => {
   };
 
   return (
-    <div className="border border-white/8 bg-[#140e0e] rounded-xl my-2 overflow-hidden" aria-expanded={isOpen}>
+    <div className="border border-white/8 bg-[#140e0e] rounded-xl my-1.5 sm:my-2 overflow-hidden" aria-expanded={isOpen}>
       <button
         onClick={toggle}
         onKeyDown={handleKeyDown}
-        className="w-full text-left grid grid-cols-[1fr_22px] gap-3 items-center px-4 py-3 text-[#efe4e4] bg-transparent border-none cursor-pointer hover:bg-white/4 outline-none focus:outline-2 focus:outline-[#f7a940]/45 focus:outline-offset-2 focus:rounded-lg transition-all"
+        className="w-full text-left grid grid-cols-[1fr_20px] sm:grid-cols-[1fr_22px] gap-2 sm:gap-3 items-center px-3 sm:px-4 py-2.5 sm:py-3 text-[#efe4e4] bg-transparent border-none cursor-pointer hover:bg-white/4 outline-none focus:outline-2 focus:outline-[#f7a940]/45 focus:outline-offset-2 focus:rounded-lg transition-all"
         aria-controls={id}
         aria-expanded={isOpen}
       >
-        <span>{question}</span>
+        <span className="text-sm sm:text-base pr-2">{question}</span>
         <svg
-          className={`transition-transform duration-180 opacity-90 ${isOpen ? 'transform rotate-180' : ''}`}
-          width="18"
-          height="18"
+          className={`transition-transform duration-180 opacity-90 flex-shrink-0 w-4 h-4 sm:w-[18px] sm:h-[18px] ${isOpen ? 'transform rotate-180' : ''}`}
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -44,11 +42,11 @@ export const FAQItem: React.FC<FAQItemProps> = ({ id, question, answer }) => {
         id={id}
         className={`transition-all duration-220 overflow-hidden border-t ${
           isOpen
-            ? 'max-h-[500px] border-white/8 px-4 pt-3 pb-4'
-            : 'max-h-0 border-transparent px-4'
+            ? 'max-h-[500px] border-white/8 px-3 sm:px-4 pt-2 sm:pt-3 pb-3 sm:pb-4'
+            : 'max-h-0 border-transparent px-3 sm:px-4'
         }`}
       >
-        <div className="text-[#e8dcdc]" dangerouslySetInnerHTML={{ __html: answer }} />
+        <div className="text-[#e8dcdc] text-sm sm:text-base" dangerouslySetInnerHTML={{ __html: answer }} />
       </div>
     </div>
   );

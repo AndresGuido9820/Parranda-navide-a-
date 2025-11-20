@@ -29,7 +29,7 @@ export const FilterSelects: React.FC<FilterSelectsProps> = ({
   onOrderChange,
 }) => {
   return (
-    <div className="flex gap-4 items-end">
+    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-stretch sm:items-end">
       <Select
         selectedKeys={selectedCategory ? [selectedCategory] : []}
         onSelectionChange={(keys) => {
@@ -38,7 +38,7 @@ export const FilterSelects: React.FC<FilterSelectsProps> = ({
         }}
         placeholder="Categorías"
         size="sm"
-        className="min-w-[140px]"
+        className="w-full sm:min-w-[140px]"
         classNames={{
           trigger: 'bg-gray-500/30 hover:bg-gray-500/40 border-0 text-white',
           value: 'text-white text-sm font-medium',
@@ -66,7 +66,7 @@ export const FilterSelects: React.FC<FilterSelectsProps> = ({
         }}
         placeholder="Ordenar"
         size="sm"
-        className="min-w-[140px]"
+        className="w-full sm:min-w-[140px]"
         classNames={{
           trigger: 'bg-gray-500/30 hover:bg-gray-500/40 border-0 text-white',
           value: 'text-white text-sm font-medium',

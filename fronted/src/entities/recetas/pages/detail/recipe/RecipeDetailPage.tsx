@@ -172,9 +172,9 @@ export const RecipeDetailPage: React.FC = () => {
   return (
     <MainLayout>
       <div className="min-h-screen bg-[#160a0a] bg-gradient-to-b from-[#160a0a] via-[#160a0a] to-[#160a0a]">
-        <div className="w-full max-w-[920px] mx-auto px-4 py-7 pb-24">
+        <div className="w-full max-w-[920px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-7 pb-16 sm:pb-20 md:pb-24">
           {/* Header */}
-          <div className="grid grid-cols-[1fr_auto] gap-4 items-start mb-3">
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 sm:gap-4 items-start mb-3">
             <div>
               {isEditing && editedData ? (
                 <>
@@ -182,7 +182,7 @@ export const RecipeDetailPage: React.FC = () => {
                     type="text"
                     value={editedData.title}
                     onChange={(e) => setEditedData({ ...editedData, title: e.target.value })}
-                    className="text-[40px] font-bold text-[#f4f2f2] mb-1 tracking-wide w-full bg-[#1c1010] border border-white/20 rounded-lg px-3 py-2 focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
+                    className="text-2xl sm:text-3xl md:text-[40px] font-bold text-[#f4f2f2] mb-1 tracking-wide w-full bg-[#1c1010] border border-white/20 rounded-lg px-3 py-2 focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
                   />
                   <input
                     type="text"
@@ -191,9 +191,9 @@ export const RecipeDetailPage: React.FC = () => {
                     placeholder="Categoría"
                     className="text-[#cbbfbf] mb-1 w-full bg-[#1c1010] border border-white/20 rounded-lg px-3 py-2 focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
                   />
-                  <div className="flex gap-4 items-center text-[#e8e0e0] opacity-90 text-sm">
-                    <div className="flex items-center gap-1">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center text-[#e8e0e0] opacity-90 text-xs sm:text-sm">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <svg width="16" height="16" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="9" stroke="#eadede" strokeWidth="1.6"/>
                         <path d="M12 7v5l3 2" stroke="#eadede" strokeWidth="1.6" strokeLinecap="round"/>
                       </svg>
@@ -201,67 +201,68 @@ export const RecipeDetailPage: React.FC = () => {
                         type="number"
                         value={editedData.prep_time_minutes || 0}
                         readOnly
-                        className="w-20 bg-[#1c1010]/50 border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] opacity-75"
+                        className="w-16 sm:w-20 bg-[#1c1010]/50 border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] opacity-75 text-xs sm:text-sm"
                       />
-                      <span>min (calculado automáticamente)</span>
+                      <span className="hidden sm:inline">min (calculado automáticamente)</span>
+                      <span className="sm:hidden">min</span>
                     </div>
-                    <div className="w-1 h-1 bg-[#7b6e6e] rounded-full opacity-80"></div>
+                    <div className="hidden sm:block w-1 h-1 bg-[#7b6e6e] rounded-full opacity-80"></div>
                     <input
                       type="text"
                       value={editedData.yield || ''}
                       onChange={(e) => setEditedData({ ...editedData, yield: e.target.value })}
                       placeholder="Rinde"
-                      className="bg-[#1c1010] border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
+                      className="bg-[#1c1010] border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none text-xs sm:text-sm"
                     />
                   </div>
                 </>
               ) : (
                 <>
-                  <h1 className="text-[40px] font-bold text-[#f4f2f2] mb-1 tracking-wide">
+                  <h1 className="text-2xl sm:text-3xl md:text-[40px] font-bold text-[#f4f2f2] mb-1 tracking-wide">
                     {recipe.title}
                   </h1>
                   <p className="text-[#cbbfbf] mb-1">
                     {recipe.category ? `${recipe.category} tradicional navideño.` : 'Receta navideña tradicional.'}
                   </p>
-                  <div className="flex gap-4 items-center text-[#e8e0e0] opacity-90 text-sm">
+                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center text-[#e8e0e0] opacity-90 text-xs sm:text-sm">
                     <div className="flex items-center gap-1">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg width="16" height="16" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="9" stroke="#eadede" strokeWidth="1.6"/>
                         <path d="M12 7v5l3 2" stroke="#eadede" strokeWidth="1.6" strokeLinecap="round"/>
                       </svg>
                       <span>{formatTime(recipe.prep_time_minutes)}</span>
                     </div>
-                    <div className="w-1 h-1 bg-[#7b6e6e] rounded-full opacity-80"></div>
+                    <div className="hidden sm:block w-1 h-1 bg-[#7b6e6e] rounded-full opacity-80"></div>
                     <span>{recipe.yield || 'N/A'}</span>
                   </div>
                 </>
               )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
               <button
                 onClick={handleBackToRecipes}
-                className="h-11 px-4 bg-transparent border border-white/8 text-white rounded-full hover:bg-white/5 transition-colors text-sm font-medium"
+                className="h-10 sm:h-11 px-3 sm:px-4 bg-transparent border border-white/8 text-white rounded-full hover:bg-white/5 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
               >
-                ← Volver
+                Volver
               </button>
               {isOwner && !isEditing && (
                 <button
                   onClick={handleStartEditing}
-                  className="h-11 inline-flex items-center gap-2 px-4 rounded-full text-white bg-transparent border border-white/8 hover:bg-white/5 transition-colors text-sm font-medium"
+                  className="h-10 sm:h-11 inline-flex items-center justify-center gap-2 px-3 sm:px-4 rounded-full text-white bg-transparent border border-white/8 hover:bg-white/5 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto"
                 >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="16" height="16" className="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <span>Editar</span>
                 </button>
               )}
               {isOwner && isEditing && (
-                <>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                   <button
                     onClick={handleSaveChanges}
                     disabled={updateRecipeMutation.isPending}
-                    className="h-11 inline-flex items-center gap-2 px-4 rounded-full text-white bg-green-600 border border-white/6 shadow-[0_10px_26px_rgba(34,197,94,0.35)] font-bold cursor-pointer hover:shadow-[0_12px_30px_rgba(34,197,94,0.45)] active:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="h-10 sm:h-11 inline-flex items-center justify-center gap-2 px-3 sm:px-4 rounded-full text-white bg-green-600 border border-white/6 shadow-[0_10px_26px_rgba(34,197,94,0.35)] font-bold cursor-pointer hover:shadow-[0_12px_30px_rgba(34,197,94,0.45)] active:bg-green-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm w-full sm:w-auto"
                   >
                     {updateRecipeMutation.isPending ? (
                       <>
@@ -280,17 +281,17 @@ export const RecipeDetailPage: React.FC = () => {
                   <button
                     onClick={handleCancelEditing}
                     disabled={updateRecipeMutation.isPending}
-                    className="h-11 px-4 bg-transparent border border-white/8 text-white rounded-full hover:bg-white/5 transition-colors text-sm font-medium disabled:opacity-50"
+                    className="h-10 sm:h-11 px-3 sm:px-4 bg-transparent border border-white/8 text-white rounded-full hover:bg-white/5 transition-colors text-xs sm:text-sm font-medium disabled:opacity-50 w-full sm:w-auto"
                   >
                     Cancelar
                   </button>
-                </>
+                </div>
               )}
               {!isEditing && (
                 <button
                   onClick={handleDownloadPDF}
                   disabled={isGenerating}
-                  className="h-11 inline-flex items-center gap-2 px-4 rounded-full text-white bg-[#e74a3b] border border-white/6 shadow-[0_10px_26px_rgba(231,74,59,0.35)] font-bold cursor-pointer hover:shadow-[0_12px_30px_rgba(231,74,59,0.45)] active:bg-[#c83e31] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="h-10 sm:h-11 inline-flex items-center justify-center gap-2 px-3 sm:px-4 rounded-full text-white bg-[#e74a3b] border border-white/6 shadow-[0_10px_26px_rgba(231,74,59,0.35)] font-bold cursor-pointer hover:shadow-[0_12px_30px_rgba(231,74,59,0.45)] active:bg-[#c83e31] transition-all disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm w-full sm:w-auto"
                 >
                   {isGenerating ? (
                     <>
@@ -331,14 +332,14 @@ export const RecipeDetailPage: React.FC = () => {
 
           {/* Steps Section */}
           <section className="mt-4">
-            <div className="flex items-center justify-between mb-2 mt-5">
-              <h2 className="text-lg font-bold text-[#f4f2f2]">Preparación (pasos)</h2>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-0 mb-2 mt-5">
+              <h2 className="text-base sm:text-lg font-bold text-[#f4f2f2]">Preparación (pasos)</h2>
               {isEditing && editedData && (
                 <button
                   onClick={handleAddStep}
-                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-600/20 text-green-400 border border-green-600/30 rounded-lg hover:bg-green-600/30 transition-colors text-sm font-medium"
+                  className="inline-flex items-center gap-2 px-2 sm:px-3 py-1 sm:py-1.5 bg-green-600/20 text-green-400 border border-green-600/30 rounded-lg hover:bg-green-600/30 transition-colors text-xs sm:text-sm font-medium w-full sm:w-auto justify-center"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="14" height="14" className="sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
                   </svg>
                   Añadir paso
@@ -346,11 +347,11 @@ export const RecipeDetailPage: React.FC = () => {
               )}
             </div>
             {isEditing && editedData ? (
-              <ol className="list-none p-0 m-2 mt-0 flex flex-col gap-4">
+              <ol className="list-none p-0 m-1 sm:m-2 mt-0 flex flex-col gap-3 sm:gap-4">
                 {editedData.steps.map((step, stepIndex) => (
                   <li
                     key={stepIndex}
-                    className="bg-transparent rounded-xl p-3 border border-white/20 hover:border-white/30 transition-all"
+                    className="bg-transparent rounded-xl p-2 sm:p-3 border border-white/20 hover:border-white/30 transition-all"
                   >
                     <div className="flex flex-col gap-3">
                       <div className="flex items-start gap-3">
@@ -418,24 +419,24 @@ export const RecipeDetailPage: React.FC = () => {
                 ))}
               </ol>
             ) : recipe.steps && recipe.steps.length > 0 ? (
-              <ol className="list-none p-0 m-2 mt-0 flex flex-col gap-4">
+              <ol className="list-none p-0 m-1 sm:m-2 mt-0 flex flex-col gap-3 sm:gap-4">
                 {recipe.steps.map((step) => (
                   <li
                     key={step.id}
-                    className="bg-transparent rounded-xl p-3 border border-transparent hover:border-white/6 hover:bg-white/2 transition-all"
+                    className="bg-transparent rounded-xl p-2 sm:p-3 border border-transparent hover:border-white/6 hover:bg-white/2 transition-all"
                   >
-                    <div className="grid grid-cols-[auto_1fr_auto] gap-3 items-start">
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center bg-[#291515] text-[#f0e0e0] font-extrabold border border-white/8 text-sm">
+                    <div className="grid grid-cols-[auto_1fr_auto] gap-2 sm:gap-3 items-start">
+                      <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center bg-[#291515] text-[#f0e0e0] font-extrabold border border-white/8 text-xs sm:text-sm flex-shrink-0">
                         {step.step_number}
                       </div>
-                      <div className="text-[#efe8e8]">{step.instruction_md}</div>
+                      <div className="text-[#efe8e8] text-sm sm:text-base">{step.instruction_md}</div>
                       {step.time_minutes && (
-                        <div className="justify-self-end px-2 py-1 text-xs text-[#eadfdf] bg-[#2a2727] border border-white/8 rounded-full">
+                        <div className="justify-self-end px-2 py-1 text-xs text-[#eadfdf] bg-[#2a2727] border border-white/8 rounded-full whitespace-nowrap">
                           {step.time_minutes} min
                         </div>
                       )}
                       {step.ingredients_json && step.ingredients_json.length > 0 && (
-                        <div className="col-start-2 col-end-3 flex flex-wrap gap-2 mt-1">
+                        <div className="col-start-2 col-end-3 flex flex-wrap gap-1.5 sm:gap-2 mt-1">
                           {step.ingredients_json.map((ingredient, ingredientIndex) => (
                             <span
                               key={ingredientIndex}

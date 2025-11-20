@@ -126,24 +126,24 @@ export const RecetasPage: React.FC = () => {
 
   return (
     <MainLayout>
-      <main className="w-full max-w-6xl mx-auto flex-1 px-4 sm:px-6 lg:px-8 py-12">
-        <div className="flex flex-col gap-8">
+      <main className="w-full max-w-6xl mx-auto flex-1 px-3 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-12">
+        <div className="flex flex-col gap-4 sm:gap-6 md:gap-8">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-white mb-2">Recetas</h1>
-            <p className="text-white/70 text-lg">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1 sm:mb-2">Recetas</h1>
+            <p className="text-white/70 text-sm sm:text-base md:text-lg">
               Explora tus preparaciones y las de la comunidad.
             </p>
           </div>
 
-          <div className="bg-transparent rounded-xl p-4">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                <div className="bg-gray-500/30 rounded-lg px-4 py-2">
+          <div className="bg-transparent rounded-xl p-3 sm:p-4">
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <div className="flex flex-col gap-3 sm:gap-4">
+                <div className="bg-gray-500/30 rounded-lg px-3 sm:px-4 py-2 w-full">
                   <RecipeFilterTabs activeTab={activeTab} onTabChange={setActiveTab} />
                 </div>
 
-                <div className="flex gap-4 items-center">
-                  <div className="bg-gray-500/30 rounded-lg px-4 py-2">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                  <div className="bg-gray-500/30 rounded-lg px-3 sm:px-4 py-2 flex-1">
                     <SearchBar
                       value={filterValue}
                       onChange={onSearchChange}
@@ -152,7 +152,7 @@ export const RecetasPage: React.FC = () => {
                     />
                   </div>
 
-                  <div className="bg-gray-500/30 rounded-lg px-4 py-2">
+                  <div className="bg-gray-500/30 rounded-lg px-3 sm:px-4 py-2 w-full sm:w-auto">
                     <FilterSelects
                       selectedCategory={selectedCategory}
                       selectedOrder={selectedOrder}
@@ -163,7 +163,7 @@ export const RecetasPage: React.FC = () => {
                 </div>
               </div>
               <div className="flex justify-between items-center">
-                <span className="text-white/60 text-small">
+                <span className="text-white/60 text-xs sm:text-sm">
                   Total {filteredRecipes.length} recetas
                   {currentQuery.isLoading && ' (cargando...)'}
                 </span>
@@ -171,16 +171,16 @@ export const RecetasPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             <Card className="bg-transparent backdrop-blur-sm border-2 border-dashed border-white/30 rounded-xl hover:border-white/50 transition-all cursor-pointer">
-              <CardBody className="flex flex-col items-center justify-center p-8 min-h-[400px]">
-                <div className="text-6xl mb-4">+</div>
-                <h3 className="text-xl font-bold text-white mb-2">Añadir nueva receta</h3>
-                <p className="text-white/60 text-sm text-center mb-6">
+              <CardBody className="flex flex-col items-center justify-center p-6 sm:p-8 min-h-[300px] sm:min-h-[350px] md:min-h-[400px]">
+                <div className="text-5xl sm:text-6xl mb-3 sm:mb-4">+</div>
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2">Añadir nueva receta</h3>
+                <p className="text-white/60 text-xs sm:text-sm text-center mb-4 sm:mb-6">
                   Sube fotos, ingredientes y pasos.
                 </p>
                 <Button 
-                  className="bg-red-600 text-white font-bold rounded-full px-8 py-2"
+                  className="bg-red-600 text-white font-bold rounded-full px-6 sm:px-8 py-2 text-sm sm:text-base"
                     onClick={() => navigate('/recetas/create')}
                 >
                   Crear
@@ -216,23 +216,23 @@ export const RecetasPage: React.FC = () => {
                         ★ {receta.rating?.toFixed(1) || 'N/A'}
                       </span>
                     </div>
-                    <CardBody className="p-5">
-                      <h3 className="text-lg font-bold text-white mb-3">{receta.title}</h3>
-                      <p className="text-sm text-white/60 mb-4">
+                    <CardBody className="p-4 sm:p-5">
+                      <h3 className="text-base sm:text-lg font-bold text-white mb-2 sm:mb-3 line-clamp-2">{receta.title}</h3>
+                      <p className="text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
                         Tiempo: {formatTime(receta.prep_time_minutes)} · Rinde: {receta.yield || 'N/A'}
                       </p>
                       {receta.tags && receta.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 mb-4">
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                           {receta.tags.map((tag, idx) => (
-                            <Chip key={idx} size="sm" className="bg-red-600/20 text-red-600 border-0">
+                            <Chip key={idx} size="sm" className="bg-red-600/20 text-red-600 border-0 text-xs">
                               {tag}
                             </Chip>
                           ))}
                         </div>
                       )}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-2">
                         <Button 
-                          className="bg-red-600 text-white font-bold flex-1 mr-2 rounded-full py-2"
+                          className="bg-red-600 text-white font-bold flex-1 mr-1 sm:mr-2 rounded-full py-2 text-xs sm:text-sm"
                           onClick={(e) => {
                             e.stopPropagation();
                             navigate(`/recetas/${receta.id}`);
