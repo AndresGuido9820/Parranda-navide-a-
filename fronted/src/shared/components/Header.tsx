@@ -80,12 +80,6 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
             {/* Desktop User Info */}
             {showUserInfo && (
               <div className="hidden md:flex items-center gap-3">
-                <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-700 hover:bg-gray-600 transition-colors">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M15 17H9m7-1V9a4 4 0 10-8 0v7l-2 2h12l-2-2z" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M10 19a2 2 0 004 0" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round"/>
-                  </svg>
-                </button>
                 <UserMenu
                   user={user}
                   onLogout={handleLogout}
@@ -154,12 +148,6 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
               {/* User Info Footer */}
               {showUserInfo && (
                 <div className="border-t border-red-800/50 p-4 space-y-3">
-                  <button className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-700 hover:bg-gray-600 transition-colors">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M15 17H9m7-1V9a4 4 0 10-8 0v7l-2 2h12l-2-2z" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                      <path d="M10 19a2 2 0 004 0" stroke="#e9dede" strokeWidth="1.6" strokeLinecap="round"/>
-                    </svg>
-                  </button>
                   <UserMenu
                     user={user}
                     onLogout={handleLogout}
