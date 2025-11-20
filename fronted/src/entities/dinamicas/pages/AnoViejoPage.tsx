@@ -60,9 +60,11 @@ export const AnoViejoPage: React.FC = () => {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 flex-1">
             {/* Área del muñeco */}
-            <div className="lg:col-span-2 flex flex-col items-center justify-center relative">
-              <div className="relative">
-                <AnoViejoDoll state={state} />
+            <div className="lg:col-span-2 flex flex-col items-center justify-center relative min-h-[200px] sm:min-h-[300px] lg:min-h-[400px] py-4 sm:py-6">
+              <div className="relative w-full flex items-center justify-center">
+                <div className="w-full max-w-[210px] aspect-square flex items-center justify-center">
+                  <AnoViejoDoll state={state} />
+                </div>
                 
                 {isBurning && (
                   <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-20">
@@ -73,18 +75,18 @@ export const AnoViejoPage: React.FC = () => {
             </div>
 
             {/* Panel de selección */}
-            <div className={`bg-[#2a1515] rounded-lg p-4 border border-[#4a2020] flex flex-col ${isBurning || isBurned ? 'opacity-50 pointer-events-none' : ''}`}>
-              <h2 className="text-lg font-semibold text-white mb-4">
+            <div className={`bg-[#2a1515] rounded-lg p-3 sm:p-4 border border-[#4a2020] flex flex-col ${isBurning || isBurned ? 'opacity-50 pointer-events-none' : ''}`}>
+              <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
                 Viste tu Año Viejo
               </h2>
 
               {/* Tabs de partes */}
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                 {(Object.keys(partLabels) as DressPartType[]).map((part) => (
                   <button
                     key={part}
                     onClick={() => setActivePart(part)}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                       activePart === part
                         ? 'bg-red-700 text-white'
                         : 'bg-[#3a2020] text-white/70 hover:bg-[#4a2020]'
@@ -96,27 +98,27 @@ export const AnoViejoPage: React.FC = () => {
               </div>
 
               {/* Opciones de la parte activa */}
-              <div className="space-y-2 max-h-96 overflow-y-auto mb-4 flex-1">
+              <div className="space-y-1.5 sm:space-y-2 max-h-[200px] sm:max-h-96 overflow-y-auto mb-3 sm:mb-4 flex-1">
                 {dressOptions[activePart].map((option) => {
                   const isSelected = state.partes[activePart]?.id === option.id;
                   return (
                     <button
                       key={option.id}
                       onClick={() => dressPart(activePart, option)}
-                      className={`w-full p-3 rounded-lg transition-all ${
+                      className={`w-full p-2 sm:p-3 rounded-lg transition-all ${
                         isSelected
                           ? 'bg-red-700 text-white'
                           : 'bg-[#3a2020] text-white/90 hover:bg-[#4a2020]'
                       }`}
                     >
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl">{option.icono}</span>
-                          <span className="text-sm font-medium">{option.nombre}</span>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <span className="text-lg sm:text-xl">{option.icono}</span>
+                          <span className="text-xs sm:text-sm font-medium">{option.nombre}</span>
                         </div>
                         {option.id !== 'ninguno' && activePart !== 'accesorios' && activePart !== 'sombrero' && (
                           <div 
-                            className="w-6 h-6 rounded-full border-2 border-white/30"
+                            className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-white/30 flex-shrink-0"
                             style={{ backgroundColor: option.color }}
                           />
                         )}
@@ -130,7 +132,7 @@ export const AnoViejoPage: React.FC = () => {
               {!isBurning && !isBurned && (
                 <button
                   onClick={handleBurn}
-                  className="w-full px-4 py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg font-bold text-base transition-colors mt-auto"
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3 bg-red-700 hover:bg-red-800 text-white rounded-lg font-bold text-sm sm:text-base transition-colors mt-auto"
                 >
                   Quemar el Año Viejo 🔥
                 </button>
@@ -138,10 +140,10 @@ export const AnoViejoPage: React.FC = () => {
 
               {isBurned && (
                 <div className="text-center mt-auto">
-                  <p className="text-xl font-bold text-yellow-400 mb-2">
+                  <p className="text-lg sm:text-xl font-bold text-yellow-400 mb-1.5 sm:mb-2">
                     ¡Feliz Año Nuevo! 🎊
                   </p>
-                  <p className="text-white/70 text-sm">
+                  <p className="text-white/70 text-xs sm:text-sm">
                     Has dejado atrás lo viejo, es hora de empezar de nuevo
                   </p>
                 </div>
