@@ -1,0 +1,213 @@
+#root {
+  max-width: 1024px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 4rem;
+  color: #f7f2f5;
+}
+
+.aplicacion {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.contenido {
+  display: grid;
+  gap: 2.75rem;
+}
+
+.cabecera {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.bienvenida {
+  text-align: center;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bienvenida h3 {
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f8bfb5;
+}
+
+.bienvenida h1 {
+  font-size: 2.75rem;
+  margin: 0;
+}
+
+.bienvenida p {
+  margin: 0 auto;
+  max-width: 540px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.lista-beneficios {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.lista-beneficios li::before {
+  content: "•";
+  color: #f74f4f;
+  margin-right: 0.5rem;
+}
+
+.registro {
+  background: #1b171a;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 14px 48px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.registro-pestanas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #120e11;
+  padding: 0.5rem;
+  border-radius: 999px;
+  font-size: 0.95rem;
+}
+
+.registro-boton {
+  flex: 1;
+  background: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+
+.registro-boton-activo {
+  background: linear-gradient(90deg, #f74f4f, #fa7160);
+  color: #fff;
+}
+
+.registro-boton-inactivo {
+  cursor: pointer;
+}
+
+.registro-formulario {
+  display: grid;
+  gap: 1rem;
+}
+
+.registro-campo {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.registro-campo-completo {
+  grid-column: 1 / -1;
+}
+
+.registro-etiqueta {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.registro-campo-contenedor {
+  position: relative;
+}
+
+.registro-entrada {
+  width: 100%;
+  background: #120e11;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.registro-entrada::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.registro-condiciones {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.registro-condiciones input {
+  margin-top: 0.2rem;
+}
+
+.registro-condiciones a {
+  color: #f57364;
+}
+
+.registro-boton-envio {
+  background: linear-gradient(90deg, #f74f4f, #fa7160);
+  padding: 0.9rem;
+  border-radius: 999px;
+  font-weight: 600;
+  border: none;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+}
+
+.registro-pregunta {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.registro-pregunta button {
+  background: none;
+  border: none;
+  color: #f57364;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+@media (min-width: 700px) {
+  .registro-formulario {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .registro-campo-completo,
+  .registro-condiciones,
+  .registro-boton-envio,
+  .registro-pregunta {
+    grid-column: 1 / -1;
+  }
+
+  .contenido {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: flex-start;
+    gap: 3rem;
+  }
+
+  .bienvenida {
+    text-align: left;
+    justify-items: start;
+  }
+
+  .bienvenida p {
+    margin: 0;
+  }
+}
