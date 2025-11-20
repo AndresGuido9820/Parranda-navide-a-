@@ -470,6 +470,27 @@ export const AnoViejoDoll: React.FC<AnoViejoDollProps> = ({ state }) => {
           top: 50%;
           margin-left: -105px;
           margin-top: -105px;
+          transform: scale(1);
+        }
+
+        @media (max-width: 640px) {
+          .wrapper {
+            width: 160px;
+            height: 160px;
+            margin-left: -80px;
+            margin-top: -80px;
+            transform: scale(0.76);
+          }
+        }
+
+        @media (max-width: 480px) {
+          .wrapper {
+            width: 140px;
+            height: 140px;
+            margin-left: -70px;
+            margin-top: -70px;
+            transform: scale(0.67);
+          }
         }
 
         .head {
