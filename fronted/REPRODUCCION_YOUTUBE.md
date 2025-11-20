@@ -7,14 +7,9 @@
 **Proceso:**
 1. Usuario escribe en el buscador (ej: "villancicos")
 2. Se llama a `searchYouTubeVideos(query)`
-3. Se hace petición a YouTube Data API v3:
-   - Endpoint: `https://www.googleapis.com/youtube/v3/search`
-   - Parámetros: `part=snippet`, `q=query`, `type=video`, `maxResults=20`
-4. Se obtienen los IDs de los videos
-5. Se hace segunda petición para obtener duraciones:
-   - Endpoint: `https://www.googleapis.com/youtube/v3/videos`
-   - Parámetros: `part=contentDetails`, `id=videoIds`
-6. Se convierte a formato `Song`:
+3. Se busca en la biblioteca mock de canciones (`MOCK_SONGS`)
+4. Se filtran las canciones por título o artista que coincidan con la búsqueda
+5. Se devuelven hasta 20 resultados en formato `Song`:
    ```typescript
    {
      id: 'VIDEO_ID',
@@ -26,9 +21,10 @@
    }
    ```
 
-**Requisitos:**
-- ✅ API Key de YouTube configurada en `.env` como `VITE_YOUTUBE_API_KEY`
-- ✅ YouTube Data API v3 habilitada en Google Cloud Console
+**Nota:**
+- ✅ Ahora se usa una biblioteca mock de canciones en lugar de la API de YouTube
+- ✅ No se requiere API Key de YouTube
+- ✅ Las canciones se muestran automáticamente al cargar la página (primeras 20)
 
 ---
 

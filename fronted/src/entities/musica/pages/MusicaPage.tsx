@@ -5,6 +5,7 @@ import { useMusicPlayer } from '../hooks/useMusicPlayer';
 import { useYouTubeSearch } from '../hooks/useYouTubeSearch';
 import { Spinner } from '@heroui/react';
 import type { Song } from '../types/song.types';
+import { MOCK_SONGS } from '../data/mockSongs';
 
 export const MusicaPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,9 +35,9 @@ export const MusicaPage: React.FC = () => {
     addToQueue(song);
   };
 
-  // Solo mostrar resultados de YouTube cuando hay búsqueda
-  // Si no hay búsqueda, no mostrar nada (o mostrar mensaje)
-  const displaySongs = shouldSearchYouTube ? youtubeResults : [];
+  // Mostrar las primeras 20 canciones por defecto, o resultados de búsqueda si hay query
+  const defaultSongs = MOCK_SONGS.slice(0, 20);
+  const displaySongs = shouldSearchYouTube ? youtubeResults : defaultSongs;
 
   return (
     <MainLayout>
@@ -59,13 +60,13 @@ export const MusicaPage: React.FC = () => {
             </div>
 
             <h3 className="text-xl font-bold text-white dark:text-white mb-4">
-              {shouldSearchYouTube ? 'Resultados de YouTube' : 'Busca canciones en YouTube'}
+              {shouldSearchYouTube ? 'Resultados de búsqueda' : 'Canciones Navideñas'}
             </h3>
 
             {!searchQuery && (
               <div className="mb-4 p-4 bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  💡 Escribe en el buscador para encontrar canciones en YouTube y agregarlas a tu cola de reproducción.
+                  💡 Mostrando las primeras 20 canciones. Escribe en el buscador para buscar más canciones.
                 </p>
               </div>
             )}
@@ -85,7 +86,7 @@ export const MusicaPage: React.FC = () => {
               </div>
             )}
 
-            {!isLoadingYouTube && (
+            {(!isLoadingYouTube || !shouldSearchYouTube) && (
               <div className="space-y-2">
                 {displaySongs.length === 0 && searchQuery ? (
                   <div className="text-center py-8 text-gray-600 dark:text-gray-400">
