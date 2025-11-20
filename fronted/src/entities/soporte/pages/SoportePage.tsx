@@ -80,28 +80,28 @@ export const SoportePage: React.FC = () => {
   return (
     <MainLayout>
       <div className="min-h-screen bg-[#0b0b0b] bg-gradient-to-b from-[#0b0b0b] via-[#0b0b0b] to-[#0b0b0b]">
-        <div className="w-full max-w-[1000px] mx-auto px-4 py-6 pb-24">
+        <div className="w-full max-w-[1000px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 pb-16 sm:pb-20 md:pb-24">
           {/* Header */}
-          <div className="flex items-center gap-3 mb-1.5 mt-3">
+          <div className="flex items-center gap-2 sm:gap-3 mb-1.5 mt-2 sm:mt-3">
             <div
-              className="w-7 h-7 rounded-lg grid place-items-center bg-[#1f1414] border border-red-500/22 cursor-pointer"
+              className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg grid place-items-center bg-[#1f1414] border border-red-500/22 cursor-pointer flex-shrink-0"
               onClick={() => navigate('/inicio')}
             >
               <HomeIcon />
             </div>
-            <div>
-              <h1 className="text-[36px] font-bold text-[#f3f3f3] m-0">Soporte</h1>
-              <div className="text-[#b8abab] text-sm mt-0.5 mb-3.5">
+            <div className="min-w-0">
+              <h1 className="text-2xl sm:text-3xl md:text-[36px] font-bold text-[#f3f3f3] m-0">Soporte</h1>
+              <div className="text-[#b8abab] text-xs sm:text-sm mt-0.5 mb-2 sm:mb-3.5">
                 Contáctanos y revisa las preguntas frecuentes.
               </div>
             </div>
           </div>
 
           {/* Grid */}
-          <div className="grid grid-cols-[320px_1fr] gap-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] lg:grid-cols-[320px_1fr] gap-4 sm:gap-5 md:gap-6 mt-4 sm:mt-6">
             {/* Contact Card */}
-            <aside className="bg-[#171111] border border-red-500/22 rounded-[16px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-4">
-              <h3 className="text-lg font-bold text-[#f3f3f3] mb-3 mt-0.5">Contáctanos</h3>
+            <aside className="bg-[#171111] border border-red-500/22 rounded-[16px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-3 sm:p-4">
+              <h3 className="text-base sm:text-lg font-bold text-[#f3f3f3] mb-2 sm:mb-3 mt-0.5">Contáctanos</h3>
               
               <ContactTile
                 icon={<PhoneIcon />}
@@ -117,11 +117,11 @@ export const SoportePage: React.FC = () => {
                 href="mailto:soporte@navidadmagica.app"
               />
 
-              <div className="grid grid-cols-[18px_1fr] gap-2.5 items-start text-[#b8abab] text-sm mt-3.5">
+              <div className="grid grid-cols-[18px_1fr] gap-2 sm:gap-2.5 items-start text-[#b8abab] text-xs sm:text-sm mt-3 sm:mt-3.5">
                 <TimeIcon />
                 <div>
                   Lun–Vie, 9:00–18:00 (UTC‑5)<br/>
-                  <span className="text-[#b8abab] text-sm">
+                  <span className="text-[#b8abab] text-xs sm:text-sm">
                     Tiempo de respuesta promedio: 1–4 horas hábiles.
                   </span>
                 </div>
@@ -129,7 +129,7 @@ export const SoportePage: React.FC = () => {
             </aside>
 
             {/* FAQ Section */}
-            <section className="bg-[#171111] border border-red-500/22 rounded-[16px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-2" aria-label="Preguntas frecuentes">
+            <section className="bg-[#171111] border border-red-500/22 rounded-[16px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-2 sm:p-3 md:p-4" aria-label="Preguntas frecuentes">
               {faqData.map((faq) => (
                 <FAQItem key={faq.id} id={faq.id} question={faq.question} answer={faq.answer} />
               ))}
