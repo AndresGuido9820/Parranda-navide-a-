@@ -35,7 +35,6 @@ export const AnoViejoPage: React.FC = () => {
             onClick={() => navigate('/dinamicas')}
             className="flex items-center gap-2 text-white/70 hover:text-white transition-colors mb-3 w-fit"
           >
-            <span className="text-xl">←</span>
             <span className="text-sm font-semibold">Volver a Dinámicas</span>
           </button>
 

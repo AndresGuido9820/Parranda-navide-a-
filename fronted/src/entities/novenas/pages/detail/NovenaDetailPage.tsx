@@ -97,7 +97,7 @@ export const NovenaDetailPage: React.FC = () => {
             onClick={handleBackToNovenas}
             className="text-sm font-bold text-gray-300 dark:text-gray-300 hover:text-primary"
           >
-            ← Volver a Novenas
+            Volver a Novenas
           </button>
         </div>
       </header>
