@@ -1,9 +1,10 @@
+import { Spinner } from '@heroui/react';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../../../../shared/layouts/MainLayout';
-import { Spinner } from '@heroui/react';
 import { useCreateRecipe } from '../../../services';
-import { ImageDropzone, RecipeStep, RecipeStepItem, TagInput } from './components';
+import type { RecipeStep } from './components';
+import { ImageDropzone, RecipeStepItem, TagInput } from './components';
 
 export const CreateRecipePage: React.FC = () => {
   const navigate = useNavigate();

@@ -2,6 +2,7 @@ import { Button, Card, CardBody, Chip } from '@heroui/react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MainLayout } from '../../../shared/layouts/MainLayout';
+import { RecipeCardSkeleton } from '../../../shared/components/skeletons/Skeleton';
 import { FilterSelects } from '../components/FilterSelects';
 import { RecipeFilterTabs } from '../components/RecipeFilterTabs';
 import { SearchBar } from '../components/SearchBar';
@@ -189,9 +190,11 @@ export const RecetasPage: React.FC = () => {
             </Card>
 
             {currentQuery.isLoading ? (
-              <div className="col-span-full text-center text-white py-8">
-                Cargando recetas...
-              </div>
+              <>
+                {[...Array(5)].map((_, i) => (
+                  <RecipeCardSkeleton key={i} />
+                ))}
+              </>
             ) : filteredRecipes.length === 0 ? (
               <div className="col-span-full text-center text-white/60 py-8">
                 No se encontraron recetas

@@ -8,12 +8,14 @@ from ...application.dtos.auth import (
     MagicLinkRequest,
     RefreshTokenRequest,
     RegisterRequest,
+    UpdateProfileRequest,
     UserResponse,
 )
 from ...application.dtos.response import APIResponse
 from ...application.use_cases.auth.login_user import LoginUserUseCase
 from ...application.use_cases.auth.refresh_token import RefreshTokenUseCase
 from ...application.use_cases.auth.register_user import RegisterUserUseCase
+from ...application.use_cases.auth.update_profile import UpdateProfileUseCase
 from ...infrastructure.persistence.sqlalchemy.engine import get_db_session
 from ...infrastructure.persistence.sqlalchemy.repositories.session import (
     SessionRepository,
@@ -62,6 +64,22 @@ async def get_me(current_user: UserResponse = Depends(get_current_user)):
     """Get current user."""
     return APIResponse(
         success=True, message="User retrieved successfully", data=current_user
+    )
+
+
+@router.patch("/me", response_model=APIResponse)
+async def update_me(
+    request: UpdateProfileRequest,
+    current_user: UserResponse = Depends(get_current_user),
+    db: Session = Depends(get_db_session),
+):
+    """Update current user profile."""
+    user_repository = UserRepository(db)
+    use_case = UpdateProfileUseCase(user_repository)
+    updated_user = use_case.execute(current_user.id, request)
+
+    return APIResponse(
+        success=True, message="Profile updated successfully", data=updated_user
     )
 
 

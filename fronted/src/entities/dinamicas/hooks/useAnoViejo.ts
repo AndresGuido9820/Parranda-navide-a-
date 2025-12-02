@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import type {
   AnoViejoState,
-  BurnStatus,
   DressPartType,
   DressOption,
   UseAnoViejoReturn,

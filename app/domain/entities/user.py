@@ -17,6 +17,7 @@ class User:
     full_name: Optional[str] = None
     alias: Optional[str] = None
     phone: Optional[str] = None
+    avatar_url: Optional[str] = None
     is_active: bool = True
     user_id: Optional[UUID] = field(default_factory=uuid4)
     created_at: Optional[datetime] = field(default_factory=datetime.now)

@@ -1,14 +1,16 @@
-import { Spinner } from '@heroui/react';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Spinner } from '@heroui/react';
 import { MainLayout } from '../../../../../shared/layouts/MainLayout';
-import { mockUserId } from '../../../data/mockMyRecipes';
+import { Skeleton } from '../../../../../shared/components/skeletons/Skeleton';
+import { useAuth } from '../../../../auth';
 import { useDownloadRecipePDF, useGetRecipeById, useUpdateRecipe } from '../../../services';
 import type { UpdateRecipeRequest } from '../../../types/recipe.types';
 
 export const RecipeDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { data: recipe, isLoading, isError } = useGetRecipeById(id);
   const { downloadPDF, isGenerating } = useDownloadRecipePDF();
   const updateRecipeMutation = useUpdateRecipe();
@@ -66,9 +68,40 @@ export const RecipeDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <Spinner size="lg" color="danger" />
-        </div>
+        <main className="w-full max-w-4xl mx-auto flex-1 px-4 py-8">
+          <div className="flex flex-col gap-6">
+            {/* Image skeleton */}
+            <Skeleton variant="rounded" height={300} className="w-full" />
+            
+            {/* Title and meta */}
+            <div className="space-y-4">
+              <Skeleton variant="text" height={36} width="70%" />
+              <div className="flex gap-4">
+                <Skeleton variant="text" height={20} width={100} />
+                <Skeleton variant="text" height={20} width={80} />
+              </div>
+            </div>
+
+            {/* Tags */}
+            <div className="flex gap-2">
+              <Skeleton variant="rounded" height={28} width={70} />
+              <Skeleton variant="rounded" height={28} width={90} />
+              <Skeleton variant="rounded" height={28} width={60} />
+            </div>
+
+            {/* Steps */}
+            <div className="space-y-4 mt-6">
+              <Skeleton variant="text" height={28} width="30%" />
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="bg-white/5 rounded-lg p-4 space-y-3">
+                  <Skeleton variant="text" height={20} width="20%" />
+                  <Skeleton variant="text" height={16} width="100%" />
+                  <Skeleton variant="text" height={16} width="80%" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
       </MainLayout>
     );
   }
@@ -167,7 +200,7 @@ export const RecipeDetailPage: React.FC = () => {
   };
 
   // Verificar si la receta pertenece al usuario actual
-  const isOwner = recipe ? recipe.author_user_id === mockUserId : false;
+  const isOwner = recipe && user ? recipe.author_user_id === user.id : false;
 
   return (
     <MainLayout>

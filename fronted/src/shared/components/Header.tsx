@@ -94,7 +94,7 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
               <div className="md:hidden flex items-center gap-2">
                 <img
                   src={avatarUrl}
-                  alt={user.full_name}
+                  alt={user.full_name || 'Usuario'}
                   className="w-9 h-9 rounded-full border-2 border-red-300/30"
                 />
               </div>

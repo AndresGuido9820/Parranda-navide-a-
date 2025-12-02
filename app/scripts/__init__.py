@@ -1,0 +1,2 @@
+# Scripts para la aplicación
+

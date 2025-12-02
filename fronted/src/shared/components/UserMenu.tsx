@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 interface UserMenuProps {
   user: {
-    full_name?: string;
-    alias?: string;
+    full_name?: string | null;
+    alias?: string | null;
   } | null;
   onLogout: () => void;
   avatarUrl: string;

@@ -44,9 +44,19 @@ class UserResponse(BaseModel):
     full_name: Optional[str] = None
     alias: Optional[str] = None
     phone: Optional[str] = None
+    avatar_url: Optional[str] = None
     is_active: bool
     created_at: datetime
     updated_at: datetime
+
+
+class UpdateProfileRequest(BaseModel):
+    """Update user profile request."""
+
+    full_name: Optional[str] = None
+    alias: Optional[str] = None
+    phone: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 
 class AuthResponse(BaseModel):

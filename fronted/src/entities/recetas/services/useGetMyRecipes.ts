@@ -1,21 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { mockMyRecipes } from '../data/mockMyRecipes';
+import { getMyRecipes, type GetRecipesParams } from './recipeApiService';
 import type { RecipeResponse } from '../types/recipe.types';
 
-export const useGetMyRecipes = () => {
+export const useGetMyRecipes = (params: GetRecipesParams = {}) => {
   return useQuery({
-    queryKey: ['myRecipes'],
+    queryKey: ['myRecipes', params],
     queryFn: async (): Promise<RecipeResponse[]> => {
-      // Simular delay de red
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      
-      // Retornar datos mock con steps incluidos
-      return mockMyRecipes.map((recipe) => ({
-        ...recipe,
-        steps: recipe.steps || [],
-      }));
+      return getMyRecipes(params);
     },
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    staleTime: 2 * 60 * 1000, // 2 minutos
+    // Solo ejecutar si hay un token (usuario logueado)
+    enabled: !!localStorage.getItem('access_token'),
   });
 };
-

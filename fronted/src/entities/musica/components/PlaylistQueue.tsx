@@ -99,7 +99,7 @@ export const PlaylistQueue: React.FC<PlaylistQueueProps> = ({ player }) => {
                   e.stopPropagation();
                   setDragOverIndex(idx);
                 }}
-                onDrop={(e, idx) => {
+                onDrop={(_e, idx) => {
                   const fromIndex = draggedIndex;
                   if (fromIndex !== null && fromIndex !== idx) {
                     player.reorderQueue(fromIndex, idx);

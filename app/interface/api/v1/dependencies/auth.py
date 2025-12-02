@@ -1,9 +1,10 @@
 """Authentication dependencies."""
 
+from typing import Optional
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.application.dtos.auth import UserResponse
@@ -14,12 +15,12 @@ from app.infrastructure.persistence.sqlalchemy.repositories.user import UserRepo
 from app.infrastructure.security.jwt_token_service import JWTTokenService
 
 security = HTTPBearer()
+security_optional = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
-    token: str = Depends(security),
+    token: HTTPAuthorizationCredentials = Depends(security),
     db: Session = Depends(get_db_session),
-    jwt_service: JWTTokenService = Depends(JWTTokenService),
 ) -> UserResponse:
     """Get current authenticated user."""
     credentials_exception = HTTPException(
@@ -28,7 +29,8 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
-    payload = jwt_service.verify_access_token(token)
+    jwt_service = JWTTokenService()
+    payload = jwt_service.verify_access_token(token.credentials)
     if payload is None:
         raise credentials_exception
 
@@ -43,3 +45,29 @@ def get_current_user(
         return user
     except (UnauthorizedError, NotFoundError):
         raise credentials_exception
+
+
+def get_current_user_optional(
+    token: Optional[HTTPAuthorizationCredentials] = Depends(security_optional),
+    db: Session = Depends(get_db_session),
+) -> Optional[dict]:
+    """Get current user if authenticated, None otherwise."""
+    if not token:
+        return None
+
+    jwt_service = JWTTokenService()
+    payload = jwt_service.verify_access_token(token.credentials)
+    if payload is None:
+        return None
+
+    user_id: str = payload.get("sub")
+    if user_id is None:
+        return None
+
+    try:
+        user_repo = UserRepository(db)
+        use_case = GetCurrentUserUseCase(user_repo)
+        user = use_case.execute(UUID(user_id))
+        return {"id": str(user.id), "email": user.email}
+    except (UnauthorizedError, NotFoundError):
+        return None
