@@ -11,7 +11,7 @@ class RecipeStepRequest(BaseModel):
     """Recipe step creation request."""
 
     instruction_md: str = Field(..., min_length=1, max_length=2000)
-    ingredients_json: List[str] = Field(default_factory=list)
+    ingredients_json: List = Field(default_factory=list)  # Puede ser List[str] o List[dict]
     time_minutes: Optional[int] = Field(None, ge=0)
 
 
@@ -22,7 +22,7 @@ class RecipeStepResponse(BaseModel):
     recipe_id: str
     step_number: int
     instruction_md: str
-    ingredients_json: List[str]
+    ingredients_json: List  # Puede ser List[str] o List[dict]
     time_minutes: Optional[int] = None
 
 

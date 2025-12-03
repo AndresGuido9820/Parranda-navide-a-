@@ -1,15 +1,20 @@
+import { useMemo } from 'react';
+
 /**
  * Snowfall animation component.
  */
 export const Snowfall = () => {
-  const snowflakes = Array.from({ length: 50 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    animationDuration: `${Math.random() * 10 + 10}s`,
-    animationDelay: `${Math.random() * 10}s`,
-    opacity: Math.random() * 0.5 + 0.1,
-    size: `${Math.random() * 0.4 + 0.1}rem`,
-  }));
+  // useMemo para generar copos solo una vez y evitar re-renders
+  const snowflakes = useMemo(() => 
+    Array.from({ length: 50 }).map((_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      animationDuration: `${Math.random() * 10 + 10}s`,
+      animationDelay: `${Math.random() * 10}s`,
+      opacity: Math.random() * 0.5 + 0.1,
+      size: `${Math.random() * 0.4 + 0.1}rem`,
+    })), 
+  []);
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">

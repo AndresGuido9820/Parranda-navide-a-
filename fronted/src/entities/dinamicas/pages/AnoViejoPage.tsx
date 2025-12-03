@@ -28,7 +28,7 @@ export const AnoViejoPage: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className={`min-h-screen px-2 sm:px-4 py-2 sm:py-4 flex flex-col transition-colors duration-300 ${isBurning ? 'bg-black' : 'bg-[#1a0a0a]'}`}>
+      <div className={`min-h-screen px-2 sm:px-4 py-2 sm:py-4 flex flex-col transition-colors duration-300 ${isBurning ? 'bg-black/80' : ''}`}>
         <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
           {/* Botón Regresar */}
           <button
@@ -75,7 +75,7 @@ export const AnoViejoPage: React.FC = () => {
             </div>
 
             {/* Panel de selección */}
-            <div className={`bg-[#2a1515] rounded-lg p-3 sm:p-4 border border-[#4a2020] flex flex-col ${isBurning || isBurned ? 'opacity-50 pointer-events-none' : ''}`}>
+            <div className={`bg-black/40 backdrop-blur-md rounded-lg p-3 sm:p-4 border border-white/10 flex flex-col ${isBurning || isBurned ? 'opacity-50 pointer-events-none' : ''}`}>
               <h2 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">
                 Viste tu Año Viejo
               </h2>
@@ -88,8 +88,8 @@ export const AnoViejoPage: React.FC = () => {
                     onClick={() => setActivePart(part)}
                     className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all ${
                       activePart === part
-                        ? 'bg-red-700 text-white'
-                        : 'bg-[#3a2020] text-white/70 hover:bg-[#4a2020]'
+                        ? 'bg-red-600 text-white shadow-lg shadow-red-900/40'
+                        : 'bg-white/5 text-white/70 hover:bg-white/10'
                     }`}
                   >
                     {partLabels[part]}
@@ -107,8 +107,8 @@ export const AnoViejoPage: React.FC = () => {
                       onClick={() => dressPart(activePart, option)}
                       className={`w-full p-2 sm:p-3 rounded-lg transition-all ${
                         isSelected
-                          ? 'bg-red-700 text-white'
-                          : 'bg-[#3a2020] text-white/90 hover:bg-[#4a2020]'
+                          ? 'bg-red-600 text-white shadow-lg shadow-red-900/40'
+                          : 'bg-white/5 text-white/90 hover:bg-white/10'
                       }`}
                     >
                       <div className="flex items-center justify-between">

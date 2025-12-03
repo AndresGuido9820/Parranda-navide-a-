@@ -608,7 +608,7 @@ export const AnoViejoDoll: React.FC<AnoViejoDollProps> = ({ state }) => {
           position: absolute;
           left: 15px;
           top: 25px;
-          z-index: 2;
+          z-index: 4;
           overflow: hidden;
         }
 
@@ -625,12 +625,12 @@ export const AnoViejoDoll: React.FC<AnoViejoDollProps> = ({ state }) => {
           position: absolute;
           left: 67px;
           top: 77px;
-          z-index: 2;
+          z-index: 4;
           overflow: hidden;
         }
 
-        .eye#left .eyeball { width: 4px; height: 4px; background-color: black; border-radius: 3px; position: absolute; left: 10px; top: 13px; z-index: 3; }
-        .eye#right .eyeball { width: 4px; height: 4px; background-color: black; border-radius: 3px; position: absolute; left: 14px; top: 13px; z-index: 3; }
+        .eye#left .eyeball { width: 4px; height: 4px; background-color: black; border-radius: 3px; position: absolute; left: 10px; top: 13px; z-index: 5; }
+        .eye#right .eyeball { width: 4px; height: 4px; background-color: black; border-radius: 3px; position: absolute; left: 14px; top: 13px; z-index: 5; }
 
         .eye#left .eyelid#lower { width: 25px; height: 1px; border-top: 2px solid; transform: rotate(96deg); position: absolute; left: -7px; top: 11px; z-index: 3; transition: all 200ms ease; }
         .eye#left .eyelid#lower:after { content: ""; width: 25px; height: 25px; background-color: antiquewhite; position: absolute; left: 0px; top: 0px; z-index: 3; }
@@ -642,8 +642,8 @@ export const AnoViejoDoll: React.FC<AnoViejoDollProps> = ({ state }) => {
         .eye#right .eyelid#upper { width: 25px; height: 1px; border-top: 2px solid; transform: rotate(69deg); position: absolute; left: -5px; top: 13px; z-index: 3; transition: all 200ms ease; }
         .eye#right .eyelid#upper:after { content: ""; width: 25px; height: 25px; background-color: antiquewhite; position: absolute; left: 0px; top: 0px; z-index: 3; }
 
-        .eyebrow#left { width: 22px; height: 1px; border-top: 2px solid; transform: rotate(64deg); position: absolute; left: 36px; top: 23px; z-index: 3; transition: all 200ms ease; }
-        .eyebrow#right { width: 22px; height: 1px; border-top: 2px solid; transform: rotate(16deg); position: absolute; left: 85px; top: 73px; z-index: 3; transition: all 200ms ease; }
+        .eyebrow#left { width: 22px; height: 1px; border-top: 2px solid; transform: rotate(64deg); position: absolute; left: 36px; top: 23px; z-index: 6; transition: all 200ms ease; }
+        .eyebrow#right { width: 22px; height: 1px; border-top: 2px solid; transform: rotate(16deg); position: absolute; left: 85px; top: 73px; z-index: 6; transition: all 200ms ease; }
 
         .nose { width: 7px; height: 11px; background-color: transparent; border-right: 2px solid #000; border-bottom: 2px solid #000; position: absolute; left: 53px; top: 70px; z-index: 3; }
 

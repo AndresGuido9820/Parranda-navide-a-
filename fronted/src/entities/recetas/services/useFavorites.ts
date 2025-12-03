@@ -12,10 +12,14 @@ import {
 
 // Hook para obtener los IDs de recetas favoritas
 export const useGetFavoriteIds = () => {
+  const token = localStorage.getItem('access_token');
+  
   return useQuery({
-    queryKey: ['favoriteIds'],
+    // Incluir token en la key para que cada usuario tenga su propio cache
+    queryKey: ['favoriteIds', token?.slice(-10)],
     queryFn: getFavoriteIds,
     staleTime: 1000 * 60 * 5, // 5 minutos
+    enabled: !!token,
   });
 };
 
@@ -26,6 +30,7 @@ export const useGetMyFavorites = (params: {
   category?: string;
   search?: string;
 } = {}) => {
+  const token = localStorage.getItem('access_token');
   const { page = 1, pageSize = 20, category, search } = params;
   
   // Filtrar params undefined para query key limpia
@@ -34,7 +39,8 @@ export const useGetMyFavorites = (params: {
   );
 
   return useQuery({
-    queryKey: ['myFavorites', cleanParams],
+    // Incluir token en la key para que cada usuario tenga su propio cache
+    queryKey: ['myFavorites', token?.slice(-10), cleanParams],
     queryFn: () => getMyFavoriteRecipes({ 
       page, 
       page_size: pageSize,
@@ -42,6 +48,7 @@ export const useGetMyFavorites = (params: {
       search,
     }),
     staleTime: 1000 * 60 * 5,
+    enabled: !!token,
   });
 };
 

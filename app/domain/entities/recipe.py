@@ -12,7 +12,7 @@ class RecipeStep:
     """Recipe step domain entity."""
 
     instruction_md: str
-    ingredients_json: List[str] = field(default_factory=list)
+    ingredients_json: List = field(default_factory=list)  # List[str] o List[dict]
     time_minutes: Optional[int] = None
     step_id: Optional[UUID] = field(default_factory=uuid4)
     recipe_id: Optional[UUID] = None
