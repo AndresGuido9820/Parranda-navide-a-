@@ -20,10 +20,27 @@ export const useGetFavoriteIds = () => {
 };
 
 // Hook para obtener las recetas favoritas completas
-export const useGetMyFavorites = (page = 1, pageSize = 20) => {
+export const useGetMyFavorites = (params: {
+  page?: number;
+  pageSize?: number;
+  category?: string;
+  search?: string;
+} = {}) => {
+  const { page = 1, pageSize = 20, category, search } = params;
+  
+  // Filtrar params undefined para query key limpia
+  const cleanParams = Object.fromEntries(
+    Object.entries({ page, pageSize, category, search }).filter(([, v]) => v !== undefined)
+  );
+
   return useQuery({
-    queryKey: ['myFavorites', page, pageSize],
-    queryFn: () => getMyFavoriteRecipes({ page, page_size: pageSize }),
+    queryKey: ['myFavorites', cleanParams],
+    queryFn: () => getMyFavoriteRecipes({ 
+      page, 
+      page_size: pageSize,
+      category,
+      search,
+    }),
     staleTime: 1000 * 60 * 5,
   });
 };

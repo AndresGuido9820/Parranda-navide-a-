@@ -62,7 +62,10 @@ export const RecetasPage: React.FC = () => {
   // Usar los servicios según el tab activo - ahora con parámetros
   const myRecipesQuery = useGetMyRecipes(queryParams);
   const communityRecipesQuery = useGetCommunityRecipes(queryParams);
-  const favoritesQuery = useGetMyFavorites();
+  const favoritesQuery = useGetMyFavorites({
+    category: selectedCategory || undefined,
+    search: debouncedSearch || undefined,
+  });
   const { data: favoriteIds = [] } = useGetFavoriteIds();
   const { toggle: toggleFavorite, isLoading: isFavoriteLoading } = useToggleFavorite();
 
@@ -77,27 +80,9 @@ export const RecetasPage: React.FC = () => {
   // Verificar si una receta está en favoritos
   const isFavorite = (recipeId: string) => favoriteIds.includes(recipeId);
 
-  // Ordenar recetas (filtros ya vienen del backend, excepto para favoritos)
+  // Ordenar recetas (filtros vienen del backend, ordenamiento es local)
   const filteredRecipes = useMemo(() => {
     let filtered = [...allRecipes];
-
-    // Para favoritos, aplicar filtros locales ya que el endpoint no los soporta
-    if (activeTab === 'favoritos') {
-      if (filterValue) {
-        const searchLower = filterValue.toLowerCase();
-        filtered = filtered.filter(
-          (recipe) =>
-            recipe.title.toLowerCase().includes(searchLower) ||
-            recipe.tags?.some((tag) => tag.toLowerCase().includes(searchLower)) ||
-            recipe.category?.toLowerCase().includes(searchLower)
-        );
-      }
-      if (selectedCategory) {
-        filtered = filtered.filter(
-          (recipe) => recipe.category?.toLowerCase() === selectedCategory.toLowerCase()
-        );
-      }
-    }
 
     // Ordenamiento local (backend no lo soporta)
     if (selectedOrder) {
@@ -120,7 +105,7 @@ export const RecetasPage: React.FC = () => {
     }
 
     return filtered;
-  }, [allRecipes, filterValue, selectedCategory, selectedOrder, activeTab]);
+  }, [allRecipes, selectedOrder]);
 
   // Cerrar menú al hacer clic fuera
   useEffect(() => {

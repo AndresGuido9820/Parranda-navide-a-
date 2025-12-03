@@ -372,6 +372,8 @@ export const getMyFavoriteRecipes = async (params: GetRecipesParams = {}): Promi
   
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.page_size) searchParams.set('page_size', params.page_size.toString());
+  if (params.category) searchParams.set('category', params.category);
+  if (params.search) searchParams.set('search', params.search);
 
   const url = `${API_BASE}/favorites/my?${searchParams.toString()}`;
   

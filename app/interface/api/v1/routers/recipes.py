@@ -234,6 +234,8 @@ async def delete_recipe(
 async def list_my_favorites(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=50),
+    category: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, description="Search in title"),
     current_user: Optional[dict] = Depends(get_current_user_optional),
     repo: RecipeRepository = Depends(get_recipe_repository),
 ):
@@ -248,6 +250,8 @@ async def list_my_favorites(
         user_id=UUID(current_user["id"]),
         page=page,
         page_size=page_size,
+        category=category,
+        search=search,
     )
 
     recipe_responses = [

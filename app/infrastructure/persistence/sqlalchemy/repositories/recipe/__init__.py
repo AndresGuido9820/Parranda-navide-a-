@@ -290,6 +290,8 @@ class RecipeRepository:
         user_id: UUID,
         page: int = 1,
         page_size: int = 10,
+        category: Optional[str] = None,
+        search: Optional[str] = None,
     ) -> Tuple[List[DomainRecipe], int]:
         """Get user favorite recipes."""
         stmt = (
@@ -298,6 +300,18 @@ class RecipeRepository:
             .options(selectinload(RecipeORM.steps))
             .where(UserFavoriteRecipeORM.user_id == user_id)
         )
+
+        # Apply filters
+        if category:
+            stmt = stmt.where(RecipeORM.category == category)
+        if search:
+            search_pattern = f"%{search}%"
+            stmt = stmt.where(
+                or_(
+                    RecipeORM.title.ilike(search_pattern),
+                    RecipeORM.author_alias.ilike(search_pattern),
+                )
+            )
 
         count_stmt = select(func.count()).select_from(stmt.subquery())
         total = self.db.execute(count_stmt).scalar() or 0
