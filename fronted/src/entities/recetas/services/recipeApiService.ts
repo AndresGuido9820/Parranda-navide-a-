@@ -84,6 +84,7 @@ export const getCommunityRecipes = async (params: GetRecipesParams = {}): Promis
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.page_size) searchParams.set('page_size', params.page_size.toString());
   if (params.category) searchParams.set('category', params.category);
+  if (params.search) searchParams.set('search', params.search);
 
   const url = `${API_BASE}/community?${searchParams.toString()}`;
   
@@ -111,6 +112,8 @@ export const getMyRecipes = async (params: GetRecipesParams = {}): Promise<Recip
   
   if (params.page) searchParams.set('page', params.page.toString());
   if (params.page_size) searchParams.set('page_size', params.page_size.toString());
+  if (params.category) searchParams.set('category', params.category);
+  if (params.search) searchParams.set('search', params.search);
 
   const url = `${API_BASE}/my?${searchParams.toString()}`;
   
@@ -308,5 +311,88 @@ export const deleteRecipe = async (recipeId: string): Promise<void> => {
   if (!json.success) {
     throw new Error(json.message || 'Error al eliminar la receta');
   }
+};
+
+// === FAVORITES ===
+
+export const getFavoriteIds = async (): Promise<string[]> => {
+  const response = await fetch(`${API_BASE}/favorites/ids`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      return [];
+    }
+    throw new Error('Error al obtener favoritos');
+  }
+
+  const json: ApiResponse<{ favorite_ids: string[] }> = await response.json();
+  
+  if (!json.success) {
+    throw new Error(json.message || 'Error al obtener favoritos');
+  }
+
+  return json.data.favorite_ids;
+};
+
+export const addFavorite = async (recipeId: string): Promise<void> => {
+  const response = await fetch(`${API_BASE}/${recipeId}/favorite`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Debes iniciar sesión para agregar a favoritos');
+    }
+    const errorJson = await response.json().catch(() => null);
+    throw new Error(errorJson?.message || 'Error al agregar a favoritos');
+  }
+};
+
+export const removeFavorite = async (recipeId: string): Promise<void> => {
+  const response = await fetch(`${API_BASE}/${recipeId}/favorite`, {
+    method: 'DELETE',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Debes iniciar sesión para quitar de favoritos');
+    }
+    const errorJson = await response.json().catch(() => null);
+    throw new Error(errorJson?.message || 'Error al quitar de favoritos');
+  }
+};
+
+export const getMyFavoriteRecipes = async (params: GetRecipesParams = {}): Promise<RecipeResponse[]> => {
+  const searchParams = new URLSearchParams();
+  
+  if (params.page) searchParams.set('page', params.page.toString());
+  if (params.page_size) searchParams.set('page_size', params.page_size.toString());
+
+  const url = `${API_BASE}/favorites/my?${searchParams.toString()}`;
+  
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error('Debes iniciar sesión para ver tus favoritos');
+    }
+    throw new Error('Error al obtener tus favoritos');
+  }
+
+  const json: ApiResponse<PaginatedResponse<RecipeResponse>> = await response.json();
+  
+  if (!json.success) {
+    throw new Error(json.message || 'Error al obtener tus favoritos');
+  }
+
+  return json.data.items;
 };
 

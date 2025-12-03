@@ -7,8 +7,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   fetchUserProgress,
   markDayComplete,
-  resetProgress,
-  updateLastRead,
 } from '../services/novenaApiService';
 
 export const useNovenaProgress = () => {
@@ -29,26 +27,3 @@ export const useMarkDayComplete = () => {
     },
   });
 };
-
-export const useUpdateLastRead = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (dayNumber: number) => updateLastRead(dayNumber),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['novena-progress'] });
-    },
-  });
-};
-
-export const useResetProgress = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: resetProgress,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['novena-progress'] });
-    },
-  });
-};
-

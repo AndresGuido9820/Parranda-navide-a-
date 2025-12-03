@@ -69,6 +69,7 @@ async def list_community_recipes(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=50),
     category: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, description="Search in title"),
     repo: RecipeRepository = Depends(get_recipe_repository),
 ):
     """List community recipes."""
@@ -77,6 +78,7 @@ async def list_community_recipes(
         page=page,
         page_size=page_size,
         category=category,
+        search=search,
     )
     return APIResponse(
         success=True,
@@ -89,6 +91,8 @@ async def list_community_recipes(
 async def list_my_recipes(
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=50),
+    category: Optional[str] = Query(None),
+    search: Optional[str] = Query(None, description="Search in title"),
     current_user: Optional[dict] = Depends(get_current_user_optional),
     repo: RecipeRepository = Depends(get_recipe_repository),
 ):
@@ -104,6 +108,8 @@ async def list_my_recipes(
         user_id=UUID(current_user["id"]),
         page=page,
         page_size=page_size,
+        category=category,
+        search=search,
     )
     return APIResponse(
         success=True,
@@ -219,4 +225,134 @@ async def delete_recipe(
             status_code=status.HTTP_403_FORBIDDEN,
             detail=str(e),
         )
+
+
+# === FAVORITES ===
+
+
+@router.get("/favorites/my", response_model=APIResponse)
+async def list_my_favorites(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(10, ge=1, le=50),
+    current_user: Optional[dict] = Depends(get_current_user_optional),
+    repo: RecipeRepository = Depends(get_recipe_repository),
+):
+    """List current user's favorite recipes."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+        )
+
+    recipes, total = repo.get_user_favorites(
+        user_id=UUID(current_user["id"]),
+        page=page,
+        page_size=page_size,
+    )
+
+    recipe_responses = [
+        RecipeResponse(
+            id=str(r.recipe_id),
+            title=r.title,
+            author_user_id=str(r.author_user_id) if r.author_user_id else None,
+            author_alias=r.author_alias,
+            photo_url=r.photo_url,
+            prep_time_minutes=r.prep_time_minutes,
+            yield_amount=r.yield_amount,
+            category=r.category,
+            rating=float(r.rating) if r.rating else None,
+            tags=r.tags,
+            is_published=r.is_published,
+            is_community=r.is_community,
+            steps=[],
+            created_at=r.created_at,
+            updated_at=r.updated_at,
+        )
+        for r in recipes
+    ]
+
+    result = RecipeListResponse(
+        items=recipe_responses,
+        total=total,
+        page=page,
+        page_size=page_size,
+        total_pages=(total + page_size - 1) // page_size,
+    )
+
+    return APIResponse(
+        success=True,
+        message="Favorite recipes retrieved successfully",
+        data=result.model_dump(),
+    )
+
+
+@router.get("/favorites/ids", response_model=APIResponse)
+async def get_my_favorite_ids(
+    current_user: Optional[dict] = Depends(get_current_user_optional),
+    repo: RecipeRepository = Depends(get_recipe_repository),
+):
+    """Get list of recipe IDs that current user has favorited."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+        )
+
+    favorite_ids = repo.get_user_favorite_ids(UUID(current_user["id"]))
+
+    return APIResponse(
+        success=True,
+        message="Favorite IDs retrieved successfully",
+        data={"favorite_ids": [str(fid) for fid in favorite_ids]},
+    )
+
+
+@router.post("/{recipe_id}/favorite", response_model=APIResponse)
+async def add_favorite(
+    recipe_id: UUID,
+    current_user: Optional[dict] = Depends(get_current_user_optional),
+    repo: RecipeRepository = Depends(get_recipe_repository),
+):
+    """Add recipe to favorites."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+        )
+
+    if not repo.exists(recipe_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Recipe with ID {recipe_id} not found",
+        )
+
+    added = repo.add_favorite(UUID(current_user["id"]), recipe_id)
+
+    return APIResponse(
+        success=True,
+        message="Recipe added to favorites" if added else "Recipe already in favorites",
+        data={"is_favorite": True},
+    )
+
+
+@router.delete("/{recipe_id}/favorite", response_model=APIResponse)
+async def remove_favorite(
+    recipe_id: UUID,
+    current_user: Optional[dict] = Depends(get_current_user_optional),
+    repo: RecipeRepository = Depends(get_recipe_repository),
+):
+    """Remove recipe from favorites."""
+    if not current_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required",
+        )
+
+    removed = repo.remove_favorite(UUID(current_user["id"]), recipe_id)
+
+    return APIResponse(
+        success=True,
+        message="Recipe removed from favorites" if removed else "Recipe was not in favorites",
+        data={"is_favorite": False},
+    )
 

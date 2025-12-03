@@ -1,4 +1,5 @@
 import { Button, Card, CardBody } from '@heroui/react';
+import { Check, Circle, Flame } from 'lucide-react';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -163,20 +164,68 @@ export const NovenasPage: React.FC = () => {
           )}
 
           {/* Progress Card */}
-          <Card className="bg-transparent backdrop-blur-sm border border-white/30 rounded-xl shadow-lg">
+          <Card className="bg-gradient-to-br from-red-950/40 to-red-900/20 backdrop-blur-sm border border-red-500/30 rounded-2xl shadow-lg overflow-hidden">
             <CardBody className="p-6">
-              <div className="flex flex-col gap-4">
-                <div className="flex justify-between items-center text-sm">
-                  <p className="font-bold text-white">Progreso de la Novena</p>
-                  <p className="font-semibold text-white">
-                    {completedCount}/{totalDays} Completados
-                  </p>
+              <div className="flex flex-col gap-5">
+                {/* Header */}
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-red-500/20 p-2 rounded-lg border border-red-500/30">
+                      <Flame className="w-5 h-5 text-orange-400" />
+                    </div>
+                    <p className="font-bold text-white text-lg">Tu Progreso</p>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-full">
+                    <span className="text-2xl font-bold text-white">{completedCount}</span>
+                    <span className="text-white/50">/</span>
+                    <span className="text-white/70">{totalDays}</span>
+                  </div>
                 </div>
-                <div className="w-full bg-white/10 rounded-full h-2.5">
-                  <div
-                    className="bg-red-600 h-2.5 rounded-full transition-all duration-500"
-                    style={{ width: `${progress}%` }}
-                  />
+
+                {/* Candle Progress Bar */}
+                <div className="relative">
+                  {/* Background track */}
+                  <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-700 ease-out bg-gradient-to-r from-orange-500 via-red-500 to-red-600"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  
+                  {/* Candle markers */}
+                  <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-1">
+                    {[...Array(9)].map((_, i) => {
+                      const isLit = i < completedCount;
+                      return (
+                        <div
+                          key={i}
+                          className={`relative w-2 h-2 rounded-full transition-all duration-300 ${
+                            isLit 
+                              ? 'bg-orange-400 shadow-[0_0_8px_rgba(251,146,60,0.8)]' 
+                              : 'bg-white/30'
+                          }`}
+                        >
+                          {isLit && (
+                            <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-yellow-300 rounded-full animate-pulse" />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Status text */}
+                <div className="flex justify-between items-center text-sm">
+                  <p className="text-white/60">
+                    {completedCount === 0 
+                      ? '¡Comienza tu camino de fe!'
+                      : completedCount === 9
+                        ? '🎄 ¡Novena completada!'
+                        : `${9 - completedCount} días restantes`}
+                  </p>
+                  <p className="text-orange-400 font-semibold">
+                    {Math.round(progress)}% completado
+                  </p>
                 </div>
               </div>
             </CardBody>
@@ -191,39 +240,67 @@ export const NovenasPage: React.FC = () => {
               return (
                 <div
                   key={dayItem.id}
-                  className={`bg-transparent backdrop-blur-sm border rounded-xl shadow-lg p-5 transition-all hover:shadow-xl hover:-translate-y-1 cursor-pointer ${
+                  className={`group relative bg-gradient-to-br backdrop-blur-sm border rounded-2xl shadow-lg p-5 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer overflow-hidden ${
                     isCurrent
-                      ? 'border-red-500 ring-2 ring-red-500/50'
+                      ? 'from-red-950/60 to-red-900/40 border-red-500 ring-2 ring-red-500/50 shadow-red-500/20'
                       : isCompleted
-                        ? 'border-green-500/50'
-                        : 'border-white/30 opacity-70'
+                        ? 'from-green-950/40 to-green-900/20 border-green-500/50 shadow-green-500/10'
+                        : 'from-white/5 to-white/0 border-white/20 opacity-80 hover:opacity-100'
                   }`}
                   onClick={() => handleDayClick(dayItem.day_number)}
                 >
-                  <div className="flex items-center gap-4">
+                  {/* Glow effect for current */}
+                  {isCurrent && (
+                    <div className="absolute -top-12 -right-12 w-32 h-32 bg-red-500/20 rounded-full blur-2xl" />
+                  )}
+                  
+                  <div className="relative flex items-center gap-4">
                     <div
-                      className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center ${
-                        isCompleted ? 'bg-green-600/20' : 'bg-white/10'
+                      className={`relative flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center transition-all duration-300 ${
+                        isCompleted 
+                          ? 'bg-gradient-to-br from-green-500/30 to-green-600/20 border border-green-500/30' 
+                          : isCurrent
+                            ? 'bg-gradient-to-br from-orange-500/30 to-red-600/20 border border-orange-500/30'
+                            : 'bg-white/10 border border-white/10'
                       }`}
                     >
                       {isCompleted ? (
-                        <span className="text-3xl text-green-400">✓</span>
+                        <div className="bg-green-500 rounded-full p-1.5">
+                          <Check className="w-5 h-5 text-white" strokeWidth={3} />
+                        </div>
                       ) : isCurrent ? (
-                        <span className="text-2xl">🕯️</span>
+                        <div className="relative flex flex-col items-center">
+                          <Flame className="w-7 h-7 text-orange-400 animate-pulse" />
+                          <div className="absolute -bottom-1 w-3 h-4 bg-gradient-to-t from-amber-200 to-transparent rounded-b-full opacity-80" />
+                        </div>
                       ) : (
-                        <span className="text-2xl text-white/40">○</span>
+                        <Circle className="w-6 h-6 text-white/30" strokeWidth={1.5} />
                       )}
                     </div>
-                    <div>
-                      <p className="font-bold text-lg text-white">
-                        Día {dayItem.day_number}
-                      </p>
-                      <p className="text-sm text-white/60">{dayItem.title}</p>
-                      <p className="text-xs text-white/40 mt-1">
-                        {isCompleted
-                          ? 'Completado'
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-bold text-lg text-white">
+                          Día {dayItem.day_number}
+                        </p>
+                        {isCompleted && (
+                          <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full border border-green-500/30">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-white/60 truncate">{dayItem.title}</p>
+                      <p className={`text-xs mt-1 font-medium ${
+                        isCompleted
+                          ? 'text-green-400'
                           : isCurrent
-                            ? 'En progreso'
+                            ? 'text-orange-400'
+                            : 'text-white/40'
+                      }`}>
+                        {isCompleted
+                          ? '🎄 Completado'
+                          : isCurrent
+                            ? '🔥 En progreso'
                             : 'Pendiente'}
                       </p>
                     </div>

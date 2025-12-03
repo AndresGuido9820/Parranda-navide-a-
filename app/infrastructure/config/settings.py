@@ -41,7 +41,6 @@ settings = Settings()
 
 
 # S3 folder paths
-S3_SONGS_PATH = "songs"
 S3_RECIPES_PATH = "recipes"
 S3_AVATARS_PATH = "avatars"
 
@@ -49,11 +48,6 @@ S3_AVATARS_PATH = "avatars"
 def get_s3_url(path: str) -> str:
     """Get full S3 URL for a given path."""
     return f"{settings.s3_base_url}/{path}"
-
-
-def get_song_thumbnail_url(filename: str) -> str:
-    """Get S3 URL for a song thumbnail."""
-    return f"{settings.s3_base_url}/{S3_SONGS_PATH}/{filename}"
 
 
 def get_recipe_image_url(filename: str) -> str:

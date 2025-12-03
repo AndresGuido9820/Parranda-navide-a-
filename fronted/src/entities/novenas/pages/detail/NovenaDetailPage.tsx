@@ -1,3 +1,4 @@
+import { ChevronLeft, ChevronRight, BookOpen, Music, Snowflake } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -23,14 +24,15 @@ export const NovenaDetailPage: React.FC = () => {
   const [isCandleModalOpen, setIsCandleModalOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('ORACION');
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [showTransitionSkeleton, setShowTransitionSkeleton] = useState(false);
   const [transitionDirection, setTransitionDirection] = useState<'left' | 'right'>('right');
 
   // Reset transition state when day changes
   useEffect(() => {
-    if (!isLoading) {
+    if (!isLoading && !showTransitionSkeleton) {
       setIsTransitioning(false);
     }
-  }, [dayNumber, isLoading]);
+  }, [dayNumber, isLoading, showTransitionSkeleton]);
 
   // Check if this day is already completed
   const isCompleted =
@@ -53,8 +55,16 @@ export const NovenaDetailPage: React.FC = () => {
     setTransitionDirection(targetDay > dayNumber ? 'right' : 'left');
     setIsTransitioning(true);
     
+    // Fade out current content
     setTimeout(() => {
+      setShowTransitionSkeleton(true);
       navigate(`/novenas/${targetDay}`);
+      
+      // Show skeleton for 1.2 seconds for smooth transition
+      setTimeout(() => {
+        setShowTransitionSkeleton(false);
+        setIsTransitioning(false);
+      }, 1200);
     }, 300);
   };
 
@@ -91,14 +101,15 @@ export const NovenaDetailPage: React.FC = () => {
   const sectionTypes = Object.keys(sectionsByType);
   const currentSections = sectionsByType[activeSection] ?? [];
 
-  if (isLoading) {
+  if (isLoading || showTransitionSkeleton) {
     return (
       <MainLayout showHeader={false}>
-        <main className="flex flex-1 flex-col py-12 px-4 max-w-4xl mx-auto w-full">
+        <main className="flex flex-1 flex-col py-12 px-4 max-w-4xl mx-auto w-full animate-fade-in">
           <div className="flex flex-col gap-6">
             <Skeleton variant="text" height={40} width="70%" className="mb-2" />
             <Skeleton variant="text" height={20} width="50%" />
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-4 mt-4 justify-center">
+              <Skeleton variant="rounded" height={40} width={100} />
               <Skeleton variant="rounded" height={40} width={100} />
               <Skeleton variant="rounded" height={40} width={100} />
             </div>
@@ -109,6 +120,11 @@ export const NovenaDetailPage: React.FC = () => {
               <Skeleton variant="text" height={16} width="80%" />
               <Skeleton variant="text" height={16} width="100%" />
               <Skeleton variant="text" height={16} width="60%" />
+              <Skeleton variant="text" height={16} width="90%" />
+              <Skeleton variant="text" height={16} width="100%" />
+            </div>
+            <div className="flex justify-center mt-6">
+              <Skeleton variant="rounded" height={56} width={200} />
             </div>
           </div>
         </main>
@@ -139,20 +155,9 @@ export const NovenaDetailPage: React.FC = () => {
   return (
     <MainLayout showHeader={false}>
       <header className="flex items-center justify-between whitespace-nowrap px-6 sm:px-10 py-4 border-b border-white/10">
-        <div className="flex items-center gap-4">
-          <div className="w-8 h-8 text-red-500">
-            <svg
-              fill="none"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                clipRule="evenodd"
-                d="M12.0799 24L4 19.2479L9.95537 8.75216L18.04 13.4961L18.0446 4H29.9554L29.96 13.4961L38.0446 8.75216L44 19.2479L35.92 24L44 28.7521L38.0446 39.2479L29.96 34.5039L29.9554 44H18.0446L18.04 34.5039L9.95537 39.2479L4 28.7521L12.0799 24Z"
-                fill="currentColor"
-                fillRule="evenodd"
-              />
-            </svg>
+        <div className="flex items-center gap-3">
+          <div className="bg-red-600/20 p-2 rounded-xl border border-red-500/30 backdrop-blur-sm">
+            <Snowflake className="text-red-500 w-6 h-6" />
           </div>
           <h2 className="text-xl font-bold text-white">Parranda Navideña</h2>
         </div>
@@ -198,18 +203,21 @@ export const NovenaDetailPage: React.FC = () => {
                 <button
                   key={type}
                   onClick={() => setActiveSection(type)}
-                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
                     activeSection === type
                       ? 'bg-red-600 text-white'
                       : 'bg-white/10 text-white/70 hover:bg-white/20'
                   }`}
                 >
+                  {type === 'ORACION' && <BookOpen className="w-4 h-4" />}
+                  {type === 'GOZO' && <Music className="w-4 h-4" />}
+                  {type === 'VILLANCICO' && <span>🎄</span>}
                   {type === 'ORACION'
-                    ? '🙏 Oración'
+                    ? 'Oración'
                     : type === 'GOZO'
-                      ? '🎵 Gozos'
+                      ? 'Gozos'
                       : type === 'VILLANCICO'
-                        ? '🎄 Villancico'
+                        ? 'Villancico'
                         : type}
                 </button>
               ))}
@@ -262,13 +270,13 @@ export const NovenaDetailPage: React.FC = () => {
               <button
                 onClick={() => handleNavigateToDay(dayNumber - 1)}
                 disabled={isTransitioning}
-                className="text-white/70 hover:text-white transition-all flex items-center gap-2 hover:scale-105 disabled:opacity-50"
+                className="text-white/70 hover:text-white transition-all flex items-center gap-2 hover:scale-105 disabled:opacity-50 group"
               >
-                <span className="transform group-hover:-translate-x-1 transition-transform">←</span>
+                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
                 <span>Día {dayNumber - 1}</span>
               </button>
             ) : (
-              <div className="w-20" />
+              <div className="w-24" />
             )}
 
             <button
@@ -286,13 +294,13 @@ export const NovenaDetailPage: React.FC = () => {
               <button
                 onClick={() => handleNavigateToDay(dayNumber + 1)}
                 disabled={isTransitioning}
-                className="text-white/70 hover:text-white transition-all flex items-center gap-2 hover:scale-105 disabled:opacity-50"
+                className="text-white/70 hover:text-white transition-all flex items-center gap-2 hover:scale-105 disabled:opacity-50 group"
               >
                 <span>Día {dayNumber + 1}</span>
-                <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             ) : (
-              <div className="w-20" />
+              <div className="w-24" />
             )}
           </div>
         </div>

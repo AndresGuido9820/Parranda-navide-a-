@@ -204,8 +204,7 @@ export const RecipeDetailPage: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-[#160a0a] bg-gradient-to-b from-[#160a0a] via-[#160a0a] to-[#160a0a]">
-        <div className="w-full max-w-[920px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-7 pb-16 sm:pb-20 md:pb-24">
+      <div className="w-full max-w-[920px] mx-auto px-3 sm:px-4 md:px-6 py-4 sm:py-6 md:py-7 pb-16 sm:pb-20 md:pb-24">
           {/* Header */}
           <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3 sm:gap-4 items-start mb-3">
             <div>
@@ -215,14 +214,14 @@ export const RecipeDetailPage: React.FC = () => {
                     type="text"
                     value={editedData.title}
                     onChange={(e) => setEditedData({ ...editedData, title: e.target.value })}
-                    className="text-2xl sm:text-3xl md:text-[40px] font-bold text-[#f4f2f2] mb-1 tracking-wide w-full bg-[#1c1010] border border-white/20 rounded-lg px-3 py-2 focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
+                    className="text-2xl sm:text-3xl md:text-[40px] font-bold text-[#f4f2f2] mb-1 tracking-wide w-full bg-black/30 border border-white/20 rounded-lg px-3 py-2 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none"
                   />
                   <input
                     type="text"
                     value={editedData.category || ''}
                     onChange={(e) => setEditedData({ ...editedData, category: e.target.value })}
                     placeholder="Categoría"
-                    className="text-[#cbbfbf] mb-1 w-full bg-[#1c1010] border border-white/20 rounded-lg px-3 py-2 focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
+                    className="text-[#cbbfbf] mb-1 w-full bg-black/30 border border-white/20 rounded-lg px-3 py-2 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none"
                   />
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 items-start sm:items-center text-[#e8e0e0] opacity-90 text-xs sm:text-sm">
                     <div className="flex items-center gap-1 flex-wrap">
@@ -234,7 +233,7 @@ export const RecipeDetailPage: React.FC = () => {
                         type="number"
                         value={editedData.prep_time_minutes || 0}
                         readOnly
-                        className="w-16 sm:w-20 bg-[#1c1010]/50 border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] opacity-75 text-xs sm:text-sm"
+                        className="w-16 sm:w-20 bg-black/30/50 border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] opacity-75 text-xs sm:text-sm"
                       />
                       <span className="hidden sm:inline">min (calculado automáticamente)</span>
                       <span className="sm:hidden">min</span>
@@ -245,7 +244,7 @@ export const RecipeDetailPage: React.FC = () => {
                       value={editedData.yield || ''}
                       onChange={(e) => setEditedData({ ...editedData, yield: e.target.value })}
                       placeholder="Rinde"
-                      className="bg-[#1c1010] border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none text-xs sm:text-sm"
+                      className="bg-black/30 border border-white/20 rounded-lg px-2 py-1 text-[#e8e0e0] focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none text-xs sm:text-sm"
                     />
                   </div>
                 </>
@@ -346,7 +345,7 @@ export const RecipeDetailPage: React.FC = () => {
           </div>
 
           {/* Hero Image */}
-          <div className="mt-3 bg-[#1c1010] p-2 rounded-[22px] border border-red-500/22 shadow-[0_28px_60px_rgba(0,0,0,0.6)]">
+          <div className="mt-3 bg-black/30 backdrop-blur-sm p-2 rounded-[22px] border border-red-500/30 shadow-[0_28px_60px_rgba(0,0,0,0.6)]">
             {recipe.photo_url ? (
               <img
                 src={recipe.photo_url}
@@ -402,7 +401,7 @@ export const RecipeDetailPage: React.FC = () => {
                               };
                               setEditedData({ ...editedData, steps: updatedSteps });
                             }}
-                            className="w-full bg-[#1c1010] text-[#efe8e8] border border-white/20 rounded-lg px-3 py-2 focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none resize-y min-h-[80px]"
+                            className="w-full bg-black/30 text-[#efe8e8] border border-white/20 rounded-lg px-3 py-2 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none resize-y min-h-[80px]"
                             placeholder="Describe el paso..."
                           />
                           <div className="flex items-center gap-2">
@@ -418,7 +417,7 @@ export const RecipeDetailPage: React.FC = () => {
                                 setEditedData({ ...editedData, steps: updatedSteps });
                               }}
                               placeholder="Tiempo (min)"
-                              className="w-24 bg-[#1c1010] text-[#eadfdf] border border-white/20 rounded-lg px-2 py-1 text-xs focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
+                              className="w-24 bg-black/30 text-[#eadfdf] border border-white/20 rounded-lg px-2 py-1 text-xs focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none"
                             />
                             <input
                               type="text"
@@ -436,7 +435,7 @@ export const RecipeDetailPage: React.FC = () => {
                                 setEditedData({ ...editedData, steps: updatedSteps });
                               }}
                               placeholder="Ingredientes (separados por coma)"
-                              className="flex-1 bg-[#1c1010] text-[#f2d7d7] border border-white/20 rounded-lg px-2 py-1 text-xs focus:border-[#f7a940]/55 focus:ring-2 focus:ring-[#f7a940]/12 outline-none"
+                              className="flex-1 bg-black/30 text-[#f2d7d7] border border-white/20 rounded-lg px-2 py-1 text-xs focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none"
                             />
                             <button
                               onClick={() => handleRemoveStep(stepIndex)}
@@ -489,7 +488,6 @@ export const RecipeDetailPage: React.FC = () => {
             )}
           </section>
         </div>
-      </div>
     </MainLayout>
   );
 };

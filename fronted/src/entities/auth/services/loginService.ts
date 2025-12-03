@@ -5,7 +5,7 @@ import type { AuthResponse, LoginRequest } from '../types';
 export const useLogin = () => {
   return useMutation({
     mutationFn: async (credentials: LoginRequest): Promise<AuthResponse> => {
-      const { data } = await api.post('/auth/login-password', credentials);
+      const { data } = await api.post('/auth/login', credentials);
       const authData = data.data;
       
       // Guardar tokens en localStorage

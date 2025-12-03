@@ -12,6 +12,7 @@ from app.domain.entities.recipe import RecipeStep as DomainRecipeStep
 
 from ...models.recipe import Recipe as RecipeORM
 from ...models.recipe import RecipeStep as RecipeStepORM
+from ...models.recipe import UserFavoriteRecipe as UserFavoriteRecipeORM
 
 
 class RecipeRepository:
@@ -120,12 +121,16 @@ class RecipeRepository:
         user_id: UUID,
         page: int = 1,
         page_size: int = 10,
+        category: Optional[str] = None,
+        search: Optional[str] = None,
     ) -> Tuple[List[DomainRecipe], int]:
         """Get recipes by user ID."""
         return self.get_all(
             page=page,
             page_size=page_size,
             author_user_id=user_id,
+            category=category,
+            search=search,
         )
 
     def get_community_recipes(
@@ -133,6 +138,7 @@ class RecipeRepository:
         page: int = 1,
         page_size: int = 10,
         category: Optional[str] = None,
+        search: Optional[str] = None,
     ) -> Tuple[List[DomainRecipe], int]:
         """Get community (published) recipes."""
         return self.get_all(
@@ -140,6 +146,7 @@ class RecipeRepository:
             page_size=page_size,
             is_published=True,
             category=category,
+            search=search,
         )
 
     def update(self, recipe: DomainRecipe) -> DomainRecipe:
@@ -233,4 +240,79 @@ class RecipeRepository:
             updated_at=recipe_orm.updated_at,
             steps=steps,
         )
+
+    # === FAVORITES ===
+
+    def add_favorite(self, user_id: UUID, recipe_id: UUID) -> bool:
+        """Add recipe to user favorites."""
+        existing = self.db.execute(
+            select(UserFavoriteRecipeORM).where(
+                UserFavoriteRecipeORM.user_id == user_id,
+                UserFavoriteRecipeORM.recipe_id == recipe_id,
+            )
+        ).scalar_one_or_none()
+
+        if existing:
+            return False
+
+        favorite = UserFavoriteRecipeORM(user_id=user_id, recipe_id=recipe_id)
+        self.db.add(favorite)
+        self.db.commit()
+        return True
+
+    def remove_favorite(self, user_id: UUID, recipe_id: UUID) -> bool:
+        """Remove recipe from user favorites."""
+        favorite = self.db.execute(
+            select(UserFavoriteRecipeORM).where(
+                UserFavoriteRecipeORM.user_id == user_id,
+                UserFavoriteRecipeORM.recipe_id == recipe_id,
+            )
+        ).scalar_one_or_none()
+
+        if not favorite:
+            return False
+
+        self.db.delete(favorite)
+        self.db.commit()
+        return True
+
+    def is_favorite(self, user_id: UUID, recipe_id: UUID) -> bool:
+        """Check if recipe is in user favorites."""
+        stmt = select(func.count()).select_from(UserFavoriteRecipeORM).where(
+            UserFavoriteRecipeORM.user_id == user_id,
+            UserFavoriteRecipeORM.recipe_id == recipe_id,
+        )
+        count = self.db.execute(stmt).scalar() or 0
+        return count > 0
+
+    def get_user_favorites(
+        self,
+        user_id: UUID,
+        page: int = 1,
+        page_size: int = 10,
+    ) -> Tuple[List[DomainRecipe], int]:
+        """Get user favorite recipes."""
+        stmt = (
+            select(RecipeORM)
+            .join(UserFavoriteRecipeORM)
+            .options(selectinload(RecipeORM.steps))
+            .where(UserFavoriteRecipeORM.user_id == user_id)
+        )
+
+        count_stmt = select(func.count()).select_from(stmt.subquery())
+        total = self.db.execute(count_stmt).scalar() or 0
+
+        offset = (page - 1) * page_size
+        stmt = stmt.order_by(UserFavoriteRecipeORM.created_at.desc()).offset(offset).limit(page_size)
+
+        recipes_orm = self.db.execute(stmt).scalars().all()
+        return [self._to_domain(r) for r in recipes_orm], total
+
+    def get_user_favorite_ids(self, user_id: UUID) -> List[UUID]:
+        """Get list of recipe IDs that user has favorited."""
+        stmt = select(UserFavoriteRecipeORM.recipe_id).where(
+            UserFavoriteRecipeORM.user_id == user_id
+        )
+        result = self.db.execute(stmt).scalars().all()
+        return list(result)
 

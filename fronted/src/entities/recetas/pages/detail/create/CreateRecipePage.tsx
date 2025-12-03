@@ -114,7 +114,7 @@ export const CreateRecipePage: React.FC = () => {
         </p>
 
         {/* Main Panel */}
-        <div className="bg-[#171111] border border-red-500/22 rounded-[18px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-4 sm:p-5 md:p-6">
+        <div className="bg-black/30 backdrop-blur-sm border border-red-500/30 rounded-[18px] shadow-[0_24px_60px_rgba(0,0,0,0.65)] p-4 sm:p-5 md:p-6">
           {/* Top Grid */}
           <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-4 sm:gap-5 md:gap-6 mb-4">
             {/* Left Column */}
@@ -127,7 +127,7 @@ export const CreateRecipePage: React.FC = () => {
                   value={recipeName}
                   onChange={(e) => setRecipeName(e.target.value)}
                   placeholder="Ej: Buñuelos de la abuela"
-                  className="w-full bg-[#0f0b0b] text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-[#f7a940]/55 focus:ring-3 focus:ring-[#f7a940]/12 outline-none transition-all"
+                  className="w-full bg-black/40 text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none transition-all"
                 />
               </div>
 
@@ -139,7 +139,7 @@ export const CreateRecipePage: React.FC = () => {
                   value={alias}
                   onChange={(e) => setAlias(e.target.value)}
                   placeholder="Tu nombre para mostrar"
-                  className="w-full bg-[#0f0b0b] text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-[#f7a940]/55 focus:ring-3 focus:ring-[#f7a940]/12 outline-none transition-all"
+                  className="w-full bg-black/40 text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none transition-all"
                 />
               </div>
 
@@ -149,7 +149,7 @@ export const CreateRecipePage: React.FC = () => {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-[#0f0b0b] text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-[#f7a940]/55 focus:ring-3 focus:ring-[#f7a940]/12 outline-none transition-all"
+                  className="w-full bg-black/40 text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none transition-all"
                 >
                   <option value="">Selecciona una categoría</option>
                   <option value="bebidas">Bebidas</option>
@@ -166,7 +166,7 @@ export const CreateRecipePage: React.FC = () => {
                   value={yieldText}
                   onChange={(e) => setYieldText(e.target.value)}
                   placeholder="Ej: 8 porciones, 6 vasos"
-                  className="w-full bg-[#0f0b0b] text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-[#f7a940]/55 focus:ring-3 focus:ring-[#f7a940]/12 outline-none transition-all"
+                  className="w-full bg-black/40 text-[#f0f0f0] border border-white/8 rounded-xl px-3 py-3 focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 outline-none transition-all"
                 />
               </div>
 

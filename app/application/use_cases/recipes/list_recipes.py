@@ -57,12 +57,16 @@ class ListRecipesUseCase:
         user_id: UUID,
         page: int = 1,
         page_size: int = 10,
+        category: Optional[str] = None,
+        search: Optional[str] = None,
     ) -> RecipeListResponse:
         """Get recipes for a specific user."""
         recipes, total = self.recipe_repository.get_by_user(
             user_id=user_id,
             page=page,
             page_size=page_size,
+            category=category,
+            search=search,
         )
 
         total_pages = math.ceil(total / page_size) if total > 0 else 1
@@ -80,12 +84,14 @@ class ListRecipesUseCase:
         page: int = 1,
         page_size: int = 10,
         category: Optional[str] = None,
+        search: Optional[str] = None,
     ) -> RecipeListResponse:
         """Get community recipes."""
         recipes, total = self.recipe_repository.get_community_recipes(
             page=page,
             page_size=page_size,
             category=category,
+            search=search,
         )
 
         total_pages = math.ceil(total / page_size) if total > 0 else 1

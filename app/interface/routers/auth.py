@@ -1,11 +1,10 @@
 """Authentication router."""
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from ...application.dtos.auth import (
     LoginRequest,
-    MagicLinkRequest,
     RefreshTokenRequest,
     RegisterRequest,
     UpdateProfileRequest,
@@ -34,29 +33,33 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db_sessio
     """Register a new user with email and password."""
     user_repository = UserRepository(db)
     use_case = RegisterUserUseCase(user_repository)
-    user = use_case.execute(request)
+    try:
+        user = use_case.execute(request)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
     return APIResponse(success=True, message="User registered successfully", data=user)
 
 
-@router.post("/login-password", response_model=APIResponse)
-async def login_password(request: LoginRequest, db: Session = Depends(get_db_session)):
-    """Login with email/password."""
+@router.post("/login", response_model=APIResponse)
+async def login(request: LoginRequest, db: Session = Depends(get_db_session)):
+    """Login with email and password."""
     user_repository = UserRepository(db)
     session_repository = SessionRepository(db)
     jwt_service = JWTTokenService()
     use_case = LoginUserUseCase(user_repository, session_repository, jwt_service)
-    auth_data = use_case.execute(request)
+    try:
+        auth_data = use_case.execute(request)
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+        )
 
     return APIResponse(success=True, message="Login successful", data=auth_data)
-
-
-@router.post("/login-email", status_code=status.HTTP_204_NO_CONTENT)
-async def login_email(request: MagicLinkRequest, db: Session = Depends(get_db_session)):
-    """Request magic link via email."""
-    # TODO: Implement magic link functionality
-    # For now, just return 204 (link sent if user exists)
-    pass
 
 
 @router.get("/me", response_model=APIResponse)

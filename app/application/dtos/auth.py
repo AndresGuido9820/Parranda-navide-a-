@@ -11,7 +11,7 @@ class RegisterRequest(BaseModel):
 
     email: EmailStr
     password: str
-    full_name: Optional[str] = None
+    full_name: str
     alias: Optional[str] = None
     phone: Optional[str] = None
 
@@ -28,12 +28,6 @@ class LoginRequest(BaseModel):
         json_schema_extra = {
             "example": {"email": "usuario@ejemplo.com", "password": "contraseña123"}
         }
-
-
-class MagicLinkRequest(BaseModel):
-    """Magic link request."""
-
-    email: EmailStr
 
 
 class UserResponse(BaseModel):

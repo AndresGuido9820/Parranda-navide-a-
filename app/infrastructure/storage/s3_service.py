@@ -9,7 +9,6 @@ from botocore.exceptions import ClientError
 
 from app.infrastructure.config.settings import (
     settings,
-    S3_SONGS_PATH,
     S3_RECIPES_PATH,
     S3_AVATARS_PATH,
 )
@@ -80,20 +79,6 @@ class S3StorageService:
             file_content,
             original_filename,
             S3_RECIPES_PATH,
-            content_type,
-        )
-
-    def upload_song_thumbnail(
-        self,
-        file_content: bytes,
-        original_filename: str,
-        content_type: str = "image/jpeg",
-    ) -> Optional[str]:
-        """Upload a song thumbnail."""
-        return self.upload_file(
-            file_content,
-            original_filename,
-            S3_SONGS_PATH,
             content_type,
         )
 

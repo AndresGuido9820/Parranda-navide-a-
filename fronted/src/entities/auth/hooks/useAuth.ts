@@ -68,11 +68,11 @@ export const useAuth = () => {
     updated_at: userData.updated_at,
   } : null;
 
-  // Extraer mensaje de error del login
-  const getLoginError = (): string | null => {
-    if (!loginMutation.error) return null;
+  // Extraer mensaje de error
+  const getErrorMessage = (mutation: typeof loginMutation | typeof registerMutation, defaultMsg: string): string | null => {
+    if (!mutation.error) return null;
     
-    const error = loginMutation.error as any;
+    const error = mutation.error as any;
     if (error?.response?.data?.message) {
       return error.response.data.message;
     }
@@ -82,8 +82,11 @@ export const useAuth = () => {
     if (error?.message) {
       return error.message;
     }
-    return 'Error al iniciar sesión. Por favor, intenta nuevamente.';
+    return defaultMsg;
   };
+
+  const loginError = getErrorMessage(loginMutation, 'Error al iniciar sesión. Por favor, intenta nuevamente.');
+  const registerError = getErrorMessage(registerMutation, 'Error al registrarse. Por favor, intenta nuevamente.');
 
   // Login con refetch del usuario
   const login = async (credentials: { email: string; password: string }) => {
@@ -106,7 +109,11 @@ export const useAuth = () => {
     user,
     isAuthenticated,
     isLoading: isLoadingUser,
-    error: getLoginError(),
+    
+    // Errores
+    error: loginError,
+    loginError,
+    registerError,
     
     // Mutaciones
     login,

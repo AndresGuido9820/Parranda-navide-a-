@@ -45,12 +45,12 @@ export const fetchNovenaDays = async (
 };
 
 /**
- * Fetch a single novena day by number.
+ * Fetch a single novena day by number (1-9).
  */
 export const fetchNovenaDayByNumber = async (
   dayNumber: number
 ): Promise<NovenaDay> => {
-  const response = await fetch(`${API_URL}/day/${dayNumber}`, {
+  const response = await fetch(`${API_URL}/${dayNumber}`, {
     headers: getAuthHeaders(),
   });
 
@@ -98,37 +98,3 @@ export const markDayComplete = async (
   const data = await response.json();
   return data.data as UserProgress;
 };
-
-/**
- * Update last read timestamp for a day.
- */
-export const updateLastRead = async (
-  dayNumber: number
-): Promise<UserProgress> => {
-  const response = await fetch(`${API_URL}/progress/read/${dayNumber}`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error updating last read for day ${dayNumber}`);
-  }
-
-  const data = await response.json();
-  return data.data as UserProgress;
-};
-
-/**
- * Reset all user progress.
- */
-export const resetProgress = async (): Promise<void> => {
-  const response = await fetch(`${API_URL}/progress/reset`, {
-    method: 'DELETE',
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Error resetting progress');
-  }
-};
-

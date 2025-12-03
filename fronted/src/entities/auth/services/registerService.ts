@@ -1,18 +1,21 @@
 import { useMutation } from '@tanstack/react-query';
 import api from '../../../shared/api/api';
-import type { RegisterRequest, AuthResponse } from '../types';
+import type { RegisterRequest } from '../types';
+
+interface RegisterResponse {
+  success: boolean;
+  message: string;
+}
 
 export const useRegister = () => {
   return useMutation({
-    mutationFn: async (userData: RegisterRequest): Promise<AuthResponse> => {
+    mutationFn: async (userData: RegisterRequest): Promise<RegisterResponse> => {
       const { data } = await api.post('/auth/register', userData);
-      const authData = data.data;
-      
-      // Guardar tokens en localStorage
-      localStorage.setItem('access_token', authData.access_token);
-      localStorage.setItem('refresh_token', authData.refresh_token);
-      
-      return authData;
+      // NO guardamos tokens - el usuario debe ir a login
+      return {
+        success: data.success,
+        message: data.message || 'Usuario registrado exitosamente',
+      };
     },
   });
 };
