@@ -436,7 +436,12 @@ export const generateRecipePDF = async (recipe: RecipeResponse): Promise<void> =
           
           doc.setFont('helvetica', 'normal');
           doc.setTextColor(colors.textDark[0], colors.textDark[1], colors.textDark[2]);
-          const ingredientsText = step.ingredients_json.join(' • ');
+          // Handle both string and object formats
+          const ingredientsText = step.ingredients_json
+            .map((ing: any) => typeof ing === 'string' 
+              ? ing 
+              : (ing?.name || ing?.amount || JSON.stringify(ing)))
+            .join(' • ');
           const ingredientsLines = doc.splitTextToSize(ingredientsText, instructionWidth - 25);
           ingredientsLines.forEach((line: string, lineIndex: number) => {
             doc.text(line, detailsX + 22, detailY + lineIndex * 4);

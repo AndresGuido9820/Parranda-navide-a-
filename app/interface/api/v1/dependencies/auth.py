@@ -3,9 +3,9 @@
 from typing import Optional
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, Request, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from app.application.dtos.auth import UserResponse
 from app.application.use_cases.auth.get_current_user import GetCurrentUserUseCase
@@ -20,7 +20,7 @@ security_optional = HTTPBearer(auto_error=False)
 
 def get_current_user(
     token: HTTPAuthorizationCredentials = Depends(security),
-    db: Session = Depends(get_db_session),
+    db: Client = Depends(get_db_session),
 ) -> UserResponse:
     """Get current authenticated user."""
     credentials_exception = HTTPException(
@@ -49,7 +49,7 @@ def get_current_user(
 
 def get_current_user_optional(
     token: Optional[HTTPAuthorizationCredentials] = Depends(security_optional),
-    db: Session = Depends(get_db_session),
+    db: Client = Depends(get_db_session),
 ) -> Optional[dict]:
     """Get current user if authenticated, None otherwise."""
     if not token:

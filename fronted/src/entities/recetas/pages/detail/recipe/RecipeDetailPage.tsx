@@ -421,7 +421,12 @@ export const RecipeDetailPage: React.FC = () => {
                             />
                             <input
                               type="text"
-                              value={step.ingredients_json?.join(', ') || ''}
+                              value={step.ingredients_json
+                                ?.map((ing: any) => typeof ing === 'string' 
+                                  ? ing 
+                                  : (ing?.name || ing?.amount || ''))
+                                .filter((ing: string) => ing.length > 0)
+                                .join(', ') || ''}
                               onChange={(e) => {
                                 const ingredients = e.target.value
                                   .split(',')
@@ -469,14 +474,20 @@ export const RecipeDetailPage: React.FC = () => {
                       )}
                       {step.ingredients_json && step.ingredients_json.length > 0 && (
                         <div className="col-start-2 col-end-3 flex flex-wrap gap-1.5 sm:gap-2 mt-1">
-                          {step.ingredients_json.map((ingredient, ingredientIndex) => (
-                            <span
-                              key={ingredientIndex}
-                              className="bg-[#2a1717] border border-white/8 text-[#f2d7d7] text-xs px-2 py-1 rounded-full"
-                            >
-                              {ingredient}
-                            </span>
-                          ))}
+                          {step.ingredients_json.map((ingredient, ingredientIndex) => {
+                            // Handle both string and object formats
+                            const ingredientText = typeof ingredient === 'string' 
+                              ? ingredient 
+                              : (ingredient?.name || ingredient?.amount || JSON.stringify(ingredient));
+                            return (
+                              <span
+                                key={ingredientIndex}
+                                className="bg-[#2a1717] border border-white/8 text-[#f2d7d7] text-xs px-2 py-1 rounded-full"
+                              >
+                                {ingredientText}
+                              </span>
+                            );
+                          })}
                         </div>
                       )}
                     </div>

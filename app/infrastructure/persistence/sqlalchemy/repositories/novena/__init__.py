@@ -1,83 +1,98 @@
-"""Novena repository implementation."""
+"""Novena repository implementation using Supabase."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import delete, select
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from app.domain.entities.novena_day import NovenaDay as DomainNovenaDay
 from app.domain.entities.novena_day import NovenaDaySection as DomainNovenaDaySection
 from app.domain.entities.novena_progress import (
     UserNovenaProgress as DomainNovenaProgress,
 )
-
-from ...models.novena import NovenaDay as NovenaDayORM
-from ...models.novena import NovenaDaySection as NovenaDaySectionORM
-from ...models.novena import UserNovenaProgress as UserNovenaProgressORM
+from app.infrastructure.persistence.sqlalchemy.supabase_helpers import (
+    datetime_to_iso,
+    table,
+    to_datetime,
+    to_uuid,
+)
 
 
 class NovenaRepository:
-    """Novena repository implementation."""
+    """Supabase-backed Novena repository."""
 
-    def __init__(self, db: Session):
-        self.db = db
+    def __init__(self, client: Client):
+        self.client = client
 
     # === NOVENA DAYS ===
 
     def create_day(self, day: DomainNovenaDay) -> DomainNovenaDay:
         """Create a new novena day."""
-        day_orm = NovenaDayORM(
-            id=day.day_id,
-            day_number=day.day_number,
-            title=day.title,
-            created_at=day.created_at,
-        )
-        self.db.add(day_orm)
-        self.db.commit()
-        self.db.refresh(day_orm)
-        return self._to_domain_day(day_orm)
+        now = datetime.now(timezone.utc)
+        payload = {
+            "id": str(day.day_id),
+            "day_number": day.day_number,
+            "title": day.title,
+            "created_at": datetime_to_iso(day.created_at or now),
+        }
+        response = table(self.client, "novena_days").insert(payload).execute()
+        record = response.data[0] if response.data else payload
+        return self._to_domain_day(record)
 
     def get_day_by_id(self, day_id: UUID) -> Optional[DomainNovenaDay]:
         """Get novena day by ID."""
-        stmt = select(NovenaDayORM).where(NovenaDayORM.id == day_id)
-        day_orm = self.db.execute(stmt).scalar_one_or_none()
-        return self._to_domain_day(day_orm) if day_orm else None
+        response = (
+            table(self.client, "novena_days")
+            .select("*")
+            .eq("id", str(day_id))
+            .limit(1)
+            .execute()
+        )
+        if not response.data:
+            return None
+        return self._to_domain_day(response.data[0])
 
     def get_day_by_number(self, day_number: int) -> Optional[DomainNovenaDay]:
         """Get novena day by number."""
-        stmt = select(NovenaDayORM).where(NovenaDayORM.day_number == day_number)
-        day_orm = self.db.execute(stmt).scalar_one_or_none()
-        return self._to_domain_day(day_orm) if day_orm else None
+        response = (
+            table(self.client, "novena_days")
+            .select("*")
+            .eq("day_number", day_number)
+            .limit(1)
+            .execute()
+        )
+        if not response.data:
+            return None
+        return self._to_domain_day(response.data[0])
 
     def get_all_days(self) -> List[DomainNovenaDay]:
         """Get all novena days."""
-        stmt = select(NovenaDayORM).order_by(NovenaDayORM.day_number)
-        days_orm = self.db.execute(stmt).scalars().all()
-        return [self._to_domain_day(day_orm) for day_orm in days_orm]
+        response = (
+            table(self.client, "novena_days")
+            .select("*")
+            .order("day_number", desc=False)
+            .execute()
+        )
+        return [self._to_domain_day(item) for item in response.data or []]
 
     def update_day(self, day: DomainNovenaDay) -> DomainNovenaDay:
         """Update a novena day."""
-        stmt = select(NovenaDayORM).where(NovenaDayORM.id == day.day_id)
-        day_orm = self.db.execute(stmt).scalar_one()
-
-        day_orm.title = day.title
-
-        self.db.commit()
-        self.db.refresh(day_orm)
-        return self._to_domain_day(day_orm)
+        table(self.client, "novena_days").update({"title": day.title}).eq(
+            "id", str(day.day_id)
+        ).execute()
+        updated = self.get_day_by_id(day.day_id)
+        return updated or day
 
     def delete_day(self, day_id: UUID) -> bool:
         """Delete a novena day."""
-        stmt = select(NovenaDayORM).where(NovenaDayORM.id == day_id)
-        day_orm = self.db.execute(stmt).scalar_one_or_none()
-
-        if day_orm:
-            self.db.delete(day_orm)
-            self.db.commit()
-            return True
-        return False
+        response = (
+            table(self.client, "novena_days")
+            .delete()
+            .eq("id", str(day_id))
+            .execute()
+        )
+        return bool(response.data)
 
     # === NOVENA SECTIONS ===
 
@@ -85,180 +100,179 @@ class NovenaRepository:
         self, section: DomainNovenaDaySection
     ) -> DomainNovenaDaySection:
         """Create a new section for a day."""
-        section_orm = NovenaDaySectionORM(
-            id=section.section_id,
-            day_id=section.day_id,
-            section_type=section.section_type,
-            position=section.position,
-            content_md=section.content_md,
-        )
-        self.db.add(section_orm)
-        self.db.commit()
-        self.db.refresh(section_orm)
-        return self._to_domain_section(section_orm)
+        payload = {
+            "id": str(section.section_id),
+            "day_id": str(section.day_id),
+            "section_type": section.section_type,
+            "position": section.position,
+            "content_md": section.content_md,
+        }
+        response = table(self.client, "novena_day_sections").insert(payload).execute()
+        record = response.data[0] if response.data else payload
+        return self._to_domain_section(record)
 
     def get_sections_by_day(self, day_id: UUID) -> List[DomainNovenaDaySection]:
         """Get all sections for a day."""
-        stmt = (
-            select(NovenaDaySectionORM)
-            .where(NovenaDaySectionORM.day_id == day_id)
-            .order_by(NovenaDaySectionORM.position)
+        response = (
+            table(self.client, "novena_day_sections")
+            .select("*")
+            .eq("day_id", str(day_id))
+            .order("position", desc=False)
+            .execute()
         )
-        sections_orm = self.db.execute(stmt).scalars().all()
-        return [self._to_domain_section(s) for s in sections_orm]
+        return [self._to_domain_section(item) for item in response.data or []]
 
     def get_section_by_id(
         self, section_id: UUID
     ) -> Optional[DomainNovenaDaySection]:
         """Get section by ID."""
-        stmt = select(NovenaDaySectionORM).where(
-            NovenaDaySectionORM.id == section_id
+        response = (
+            table(self.client, "novena_day_sections")
+            .select("*")
+            .eq("id", str(section_id))
+            .limit(1)
+            .execute()
         )
-        section_orm = self.db.execute(stmt).scalar_one_or_none()
-        return self._to_domain_section(section_orm) if section_orm else None
+        if not response.data:
+            return None
+        return self._to_domain_section(response.data[0])
 
     def update_section(
         self, section: DomainNovenaDaySection
     ) -> DomainNovenaDaySection:
         """Update a section."""
-        stmt = select(NovenaDaySectionORM).where(
-            NovenaDaySectionORM.id == section.section_id
-        )
-        section_orm = self.db.execute(stmt).scalar_one()
-
-        section_orm.section_type = section.section_type
-        section_orm.position = section.position
-        section_orm.content_md = section.content_md
-
-        self.db.commit()
-        self.db.refresh(section_orm)
-        return self._to_domain_section(section_orm)
+        payload = {
+            "section_type": section.section_type,
+            "position": section.position,
+            "content_md": section.content_md,
+        }
+        table(self.client, "novena_day_sections").update(payload).eq(
+            "id", str(section.section_id)
+        ).execute()
+        updated = self.get_section_by_id(section.section_id)
+        return updated or section
 
     def delete_section(self, section_id: UUID) -> bool:
         """Delete a section."""
-        stmt = select(NovenaDaySectionORM).where(
-            NovenaDaySectionORM.id == section_id
+        response = (
+            table(self.client, "novena_day_sections")
+            .delete()
+            .eq("id", str(section_id))
+            .execute()
         )
-        section_orm = self.db.execute(stmt).scalar_one_or_none()
-
-        if section_orm:
-            self.db.delete(section_orm)
-            self.db.commit()
-            return True
-        return False
+        return bool(response.data)
 
     # === USER PROGRESS ===
 
     def get_user_progress(self, user_id: UUID) -> List[DomainNovenaProgress]:
         """Get all progress for a user."""
-        stmt = select(UserNovenaProgressORM).where(
-            UserNovenaProgressORM.user_id == user_id
+        response = (
+            table(self.client, "user_novena_progress")
+            .select("*")
+            .eq("user_id", str(user_id))
+            .execute()
         )
-        progress_orm = self.db.execute(stmt).scalars().all()
-        return [self._to_domain_progress(p) for p in progress_orm]
+        return [self._to_domain_progress(item) for item in response.data or []]
 
     def get_progress_for_day(
         self, user_id: UUID, day_id: UUID
     ) -> Optional[DomainNovenaProgress]:
         """Get user progress for a specific day."""
-        stmt = select(UserNovenaProgressORM).where(
-            UserNovenaProgressORM.user_id == user_id,
-            UserNovenaProgressORM.day_id == day_id,
+        response = (
+            table(self.client, "user_novena_progress")
+            .select("*")
+            .eq("user_id", str(user_id))
+            .eq("day_id", str(day_id))
+            .limit(1)
+            .execute()
         )
-        progress_orm = self.db.execute(stmt).scalar_one_or_none()
-        return self._to_domain_progress(progress_orm) if progress_orm else None
+        if not response.data:
+            return None
+        return self._to_domain_progress(response.data[0])
 
     def create_or_update_progress(
         self, progress: DomainNovenaProgress
     ) -> DomainNovenaProgress:
         """Create or update user progress."""
-        stmt = select(UserNovenaProgressORM).where(
-            UserNovenaProgressORM.user_id == progress.user_id,
-            UserNovenaProgressORM.day_id == progress.day_id,
-        )
-        existing = self.db.execute(stmt).scalar_one_or_none()
+        existing = self.get_progress_for_day(progress.user_id, progress.day_id)
+
+        payload = {
+            "is_completed": progress.is_completed,
+            "completed_at": datetime_to_iso(progress.completed_at),
+            "last_read_at": datetime_to_iso(progress.last_read_at),
+        }
 
         if existing:
-            existing.is_completed = progress.is_completed
-            existing.completed_at = progress.completed_at
-            existing.last_read_at = progress.last_read_at
-            self.db.commit()
-            self.db.refresh(existing)
-            return self._to_domain_progress(existing)
+            table(self.client, "user_novena_progress").update(payload).eq(
+                "user_id", str(progress.user_id)
+            ).eq("day_id", str(progress.day_id)).execute()
         else:
-            progress_orm = UserNovenaProgressORM(
-                user_id=progress.user_id,
-                day_id=progress.day_id,
-                is_completed=progress.is_completed,
-                completed_at=progress.completed_at,
-                last_read_at=progress.last_read_at,
-            )
-            self.db.add(progress_orm)
-            self.db.commit()
-            self.db.refresh(progress_orm)
-            return self._to_domain_progress(progress_orm)
+            create_payload = {
+                "user_id": str(progress.user_id),
+                "day_id": str(progress.day_id),
+                **payload,
+            }
+            table(self.client, "user_novena_progress").insert(create_payload).execute()
+
+        updated = self.get_progress_for_day(progress.user_id, progress.day_id)
+        return updated or progress
 
     def mark_day_complete(
         self, user_id: UUID, day_id: UUID
     ) -> DomainNovenaProgress:
         """Mark a day as complete for a user."""
+        now = datetime.now(timezone.utc)
         progress = self.get_progress_for_day(user_id, day_id)
 
         if progress:
             progress.is_completed = True
-            progress.completed_at = datetime.now()
-            progress.last_read_at = datetime.now()
+            progress.completed_at = now
+            progress.last_read_at = now
             return self.create_or_update_progress(progress)
-        else:
-            new_progress = DomainNovenaProgress(
-                user_id=user_id,
-                day_id=day_id,
-                is_completed=True,
-                completed_at=datetime.now(),
-                last_read_at=datetime.now(),
-            )
-            return self.create_or_update_progress(new_progress)
+
+        new_progress = DomainNovenaProgress(
+            user_id=user_id,
+            day_id=day_id,
+            is_completed=True,
+            completed_at=now,
+            last_read_at=now,
+        )
+        return self.create_or_update_progress(new_progress)
 
     def reset_user_progress(self, user_id: UUID) -> bool:
         """Reset all progress for a user."""
-        stmt = delete(UserNovenaProgressORM).where(
-            UserNovenaProgressORM.user_id == user_id
-        )
-        self.db.execute(stmt)
-        self.db.commit()
+        table(self.client, "user_novena_progress").delete().eq(
+            "user_id", str(user_id)
+        ).execute()
         return True
 
     # === CONVERTERS ===
 
-    def _to_domain_day(self, day_orm: NovenaDayORM) -> DomainNovenaDay:
-        """Convert ORM to domain entity."""
+    def _to_domain_day(self, record) -> DomainNovenaDay:
+        """Convert Supabase record to domain entity."""
         return DomainNovenaDay(
-            day_id=day_orm.id,
-            day_number=day_orm.day_number,
-            title=day_orm.title,
-            created_at=day_orm.created_at,
+            day_id=to_uuid(record.get("id")),
+            day_number=record.get("day_number"),
+            title=record.get("title"),
+            created_at=to_datetime(record.get("created_at")),
         )
 
-    def _to_domain_section(
-        self, section_orm: NovenaDaySectionORM
-    ) -> DomainNovenaDaySection:
-        """Convert ORM to domain entity."""
+    def _to_domain_section(self, record) -> DomainNovenaDaySection:
+        """Convert Supabase record to domain entity."""
         return DomainNovenaDaySection(
-            section_id=section_orm.id,
-            day_id=section_orm.day_id,
-            section_type=section_orm.section_type,
-            position=section_orm.position,
-            content_md=section_orm.content_md,
+            section_id=to_uuid(record.get("id")),
+            day_id=to_uuid(record.get("day_id")),
+            section_type=record.get("section_type"),
+            position=record.get("position"),
+            content_md=record.get("content_md"),
         )
 
-    def _to_domain_progress(
-        self, progress_orm: UserNovenaProgressORM
-    ) -> DomainNovenaProgress:
-        """Convert ORM to domain entity."""
+    def _to_domain_progress(self, record) -> DomainNovenaProgress:
+        """Convert Supabase record to domain entity."""
         return DomainNovenaProgress(
-            user_id=progress_orm.user_id,
-            day_id=progress_orm.day_id,
-            is_completed=progress_orm.is_completed,
-            completed_at=progress_orm.completed_at,
-            last_read_at=progress_orm.last_read_at,
+            user_id=to_uuid(record.get("user_id")),
+            day_id=to_uuid(record.get("day_id")),
+            is_completed=bool(record.get("is_completed", False)),
+            completed_at=to_datetime(record.get("completed_at")),
+            last_read_at=to_datetime(record.get("last_read_at")),
         )

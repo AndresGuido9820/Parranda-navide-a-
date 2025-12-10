@@ -3,7 +3,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from app.application.dtos.auth import UserResponse
 from app.application.dtos.novenas import (
@@ -26,7 +26,7 @@ from app.interface.api.v1.dependencies.auth import get_current_user
 router = APIRouter(prefix="/novenas", tags=["Novenas"])
 
 
-def get_novena_repo(db: Session = Depends(get_db_session)) -> NovenaRepository:
+def get_novena_repo(db: Client = Depends(get_db_session)) -> NovenaRepository:
     """Get novena repository dependency."""
     return NovenaRepository(db)
 

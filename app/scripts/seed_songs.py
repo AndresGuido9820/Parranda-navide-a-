@@ -6,17 +6,14 @@ Ejecutar desde la raíz del proyecto: python -m app.scripts.seed_songs
 
 import sys
 from pathlib import Path
+from uuid import uuid4
+from datetime import datetime, timezone
 
 # Agregar el directorio raíz al path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from uuid import uuid4
-from datetime import datetime, timezone
-
-from sqlalchemy.orm import Session
-
-from app.infrastructure.persistence.sqlalchemy.engine import engine
-from app.infrastructure.persistence.sqlalchemy.models.music import Song
+from app.infrastructure.persistence.sqlalchemy.engine import get_supabase_client
+from app.infrastructure.persistence.sqlalchemy.supabase_helpers import table
 
 
 # Datos de las canciones (extraídos del mock del frontend)
@@ -87,44 +84,42 @@ SONGS_DATA = [
 
 
 def seed_songs():
-    """Inserta las canciones en la base de datos."""
-    with Session(engine) as session:
-        # Verificar canciones existentes
-        existing_ids = {
-            s.youtube_video_id
-            for s in session.query(Song.youtube_video_id).all()
+    """Inserta las canciones en la base de datos usando Supabase."""
+    client = get_supabase_client()
+
+    existing = table(client, "songs").select("youtube_video_id").execute()
+    existing_ids = {item["youtube_video_id"] for item in existing.data or []}
+
+    inserted = 0
+    skipped = 0
+
+    for song_data in SONGS_DATA:
+        if song_data["youtube_id"] in existing_ids:
+            print(f"⏭️  Saltando (ya existe): {song_data['title'][:50]}")
+            skipped += 1
+            continue
+
+        payload = {
+            "id": str(uuid4()),
+            "youtube_video_id": song_data["youtube_id"],
+            "title": song_data["title"],
+            "artist": song_data["artist"],
+            "thumbnail_url": f"https://i.ytimg.com/vi/{song_data['youtube_id']}/mqdefault.jpg",
+            "duration_seconds": song_data["duration"],
+            "genre": song_data["genre"],
+            "is_christmas": True,
+            "is_active": True,
+            "created_at": datetime.now(timezone.utc),
         }
-        
-        inserted = 0
-        skipped = 0
-        
-        for song_data in SONGS_DATA:
-            if song_data["youtube_id"] in existing_ids:
-                print(f"⏭️  Saltando (ya existe): {song_data['title'][:50]}")
-                skipped += 1
-                continue
-            
-            song = Song(
-                id=uuid4(),
-                youtube_video_id=song_data["youtube_id"],
-                title=song_data["title"],
-                artist=song_data["artist"],
-                thumbnail_url=f"https://i.ytimg.com/vi/{song_data['youtube_id']}/mqdefault.jpg",
-                duration_seconds=song_data["duration"],
-                genre=song_data["genre"],
-                is_christmas=True,
-            )
-            session.add(song)
-            print(f"✅ Insertando: {song_data['title'][:50]}")
-            inserted += 1
-        
-        session.commit()
-        
-        print(f"\n{'='*50}")
-        print(f"📊 Resumen:")
-        print(f"   ✅ Canciones insertadas: {inserted}")
-        print(f"   ⏭️  Canciones saltadas: {skipped}")
-        print(f"   📦 Total en base de datos: {inserted + skipped + len(existing_ids) - skipped}")
+        table(client, "songs").insert(payload).execute()
+        print(f"✅ Insertando: {song_data['title'][:50]}")
+        inserted += 1
+
+    print(f"\n{'='*50}")
+    print("📊 Resumen:")
+    print(f"   ✅ Canciones insertadas: {inserted}")
+    print(f"   ⏭️  Canciones saltadas: {skipped}")
+    print(f"   📦 Total en base de datos: {inserted + skipped + len(existing_ids)}")
 
 
 if __name__ == "__main__":

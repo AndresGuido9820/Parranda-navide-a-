@@ -84,6 +84,7 @@ class LoginUserUseCase:
                 full_name=user.full_name,
                 alias=user.alias,
                 phone=user.phone,
+                avatar_url=user.avatar_url,
                 is_active=user.is_active,
                 created_at=user.created_at,
                 updated_at=user.updated_at,

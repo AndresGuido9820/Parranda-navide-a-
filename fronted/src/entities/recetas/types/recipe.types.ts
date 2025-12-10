@@ -1,9 +1,12 @@
+// Ingredient can be a string or an object with name and amount
+export type Ingredient = string | { name?: string; amount?: string };
+
 export interface RecipeStep {
   id: string;
   recipe_id: string;
   step_number: number;
   instruction_md: string;
-  ingredients_json: string[];
+  ingredients_json: Ingredient[]; // Can be string[] or {name, amount}[]
   time_minutes?: number;
 }
 

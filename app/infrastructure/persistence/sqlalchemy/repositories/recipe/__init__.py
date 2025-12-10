@@ -1,72 +1,85 @@
-"""Recipe repository implementation."""
+"""Recipe repository implementation using Supabase."""
 
+from datetime import datetime, timezone
 from decimal import Decimal
-from typing import List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from uuid import UUID
 
-from sqlalchemy import func, select, or_
-from sqlalchemy.orm import Session, selectinload
+from supabase import Client
 
 from app.domain.entities.recipe import Recipe as DomainRecipe
 from app.domain.entities.recipe import RecipeStep as DomainRecipeStep
-
-from ...models.recipe import Recipe as RecipeORM
-from ...models.recipe import RecipeStep as RecipeStepORM
-from ...models.recipe import UserFavoriteRecipe as UserFavoriteRecipeORM
+from app.infrastructure.persistence.sqlalchemy.supabase_helpers import (
+    datetime_to_iso,
+    page_range,
+    table,
+    to_datetime,
+    to_uuid,
+)
 
 
 class RecipeRepository:
-    """Recipe repository implementation."""
+    """Supabase-backed recipe repository."""
 
-    def __init__(self, db: Session):
-        self.db = db
+    def __init__(self, client: Client):
+        self.client = client
 
     def create(self, recipe: DomainRecipe) -> DomainRecipe:
         """Create a new recipe with its steps."""
-        recipe_orm = RecipeORM(
-            id=recipe.recipe_id,
-            title=recipe.title,
-            author_user_id=recipe.author_user_id,
-            author_alias=recipe.author_alias,
-            photo_url=recipe.photo_url,
-            prep_time_minutes=recipe.prep_time_minutes,
-            yield_amount=recipe.yield_amount,
-            category=recipe.category,
-            rating=recipe.rating,
-            tags=recipe.tags,
-            is_published=recipe.is_published,
-            is_community=recipe.is_community,
-            created_at=recipe.created_at,
-            updated_at=recipe.updated_at,
-        )
+        now = datetime.now(timezone.utc)
+        recipe_data = {
+            "id": str(recipe.recipe_id),
+            "title": recipe.title,
+            "author_user_id": str(recipe.author_user_id)
+            if recipe.author_user_id
+            else None,
+            "author_alias": recipe.author_alias,
+            "photo_url": recipe.photo_url,
+            "prep_time_minutes": recipe.prep_time_minutes,
+            "yield": recipe.yield_amount,
+            "category": recipe.category,
+            "rating": float(recipe.rating) if recipe.rating is not None else None,
+            "tags": recipe.tags or [],
+            "is_published": recipe.is_published,
+            "is_community": recipe.is_community,
+            "created_at": datetime_to_iso(recipe.created_at or now),
+            "updated_at": datetime_to_iso(recipe.updated_at or now),
+        }
 
-        # Add steps
-        for step in recipe.steps:
-            step_orm = RecipeStepORM(
-                id=step.step_id,
-                recipe_id=recipe.recipe_id,
-                step_number=step.step_number,
-                instruction_md=step.instruction_md,
-                ingredients_json=step.ingredients_json,
-                time_minutes=step.time_minutes,
-            )
-            recipe_orm.steps.append(step_orm)
+        table(self.client, "recipes").insert(recipe_data).execute()
 
-        self.db.add(recipe_orm)
-        self.db.commit()
-        self.db.refresh(recipe_orm)
+        if recipe.steps:
+            steps_payload = [
+                {
+                    "id": str(step.step_id),
+                    "recipe_id": str(recipe.recipe_id),
+                    "step_number": step.step_number,
+                    "instruction_md": step.instruction_md,
+                    "ingredients_json": step.ingredients_json,
+                    "time_minutes": step.time_minutes,
+                }
+                for step in recipe.steps
+            ]
+            table(self.client, "recipe_steps").insert(steps_payload).execute()
 
-        return self._to_domain(recipe_orm)
+        created = self.get_by_id(recipe.recipe_id)
+        return created or recipe
 
     def get_by_id(self, recipe_id: UUID) -> Optional[DomainRecipe]:
         """Get recipe by ID with steps."""
-        stmt = (
-            select(RecipeORM)
-            .options(selectinload(RecipeORM.steps))
-            .where(RecipeORM.id == recipe_id)
+        response = (
+            table(self.client, "recipes")
+            .select("*")
+            .eq("id", str(recipe_id))
+            .limit(1)
+            .execute()
         )
-        recipe_orm = self.db.execute(stmt).scalar_one_or_none()
-        return self._to_domain(recipe_orm) if recipe_orm else None
+        if not response.data:
+            return None
+
+        record = response.data[0]
+        steps_map = self._fetch_steps([record["id"]])
+        return self._to_domain(record, steps_map.get(str(record["id"]), []))
 
     def get_all(
         self,
@@ -80,41 +93,34 @@ class RecipeRepository:
         tags: Optional[List[str]] = None,
     ) -> Tuple[List[DomainRecipe], int]:
         """Get all recipes with filters and pagination."""
-        # Base query
-        stmt = select(RecipeORM).options(selectinload(RecipeORM.steps))
+        query = table(self.client, "recipes").select("*", count="exact")
 
-        # Apply filters
         if category:
-            stmt = stmt.where(RecipeORM.category == category)
+            query = query.eq("category", category)
         if is_published is not None:
-            stmt = stmt.where(RecipeORM.is_published == is_published)
+            query = query.eq("is_published", is_published)
         if is_community is not None:
-            stmt = stmt.where(RecipeORM.is_community == is_community)
+            query = query.eq("is_community", is_community)
         if author_user_id:
-            stmt = stmt.where(RecipeORM.author_user_id == author_user_id)
+            query = query.eq("author_user_id", str(author_user_id))
         if search:
-            search_pattern = f"%{search}%"
-            stmt = stmt.where(
-                or_(
-                    RecipeORM.title.ilike(search_pattern),
-                    RecipeORM.author_alias.ilike(search_pattern),
-                )
-            )
+            like = f"%{search}%"
+            query = query.or_(f"title.ilike.{like},author_alias.ilike.{like}")
         if tags:
-            stmt = stmt.where(RecipeORM.tags.overlap(tags))
+            query = query.overlaps("tags", tags)
 
-        # Count total
-        count_stmt = select(func.count()).select_from(stmt.subquery())
-        total = self.db.execute(count_stmt).scalar() or 0
+        start, end = page_range(page, page_size)
+        response = query.order("created_at", desc=True).range(start, end).execute()
 
-        # Apply pagination and ordering
-        offset = (page - 1) * page_size
-        stmt = stmt.order_by(RecipeORM.created_at.desc()).offset(offset).limit(page_size)
+        records: List[Dict[str, Any]] = response.data or []
+        total = response.count or 0
 
-        # Execute
-        recipes_orm = self.db.execute(stmt).scalars().all()
-
-        return [self._to_domain(r) for r in recipes_orm], total
+        steps_map = self._fetch_steps([r["id"] for r in records])
+        recipes = [
+            self._to_domain(record, steps_map.get(str(record["id"]), []))
+            for record in records
+        ]
+        return recipes, total
 
     def get_by_user(
         self,
@@ -151,139 +157,112 @@ class RecipeRepository:
 
     def update(self, recipe: DomainRecipe) -> DomainRecipe:
         """Update recipe and its steps."""
-        stmt = (
-            select(RecipeORM)
-            .options(selectinload(RecipeORM.steps))
-            .where(RecipeORM.id == recipe.recipe_id)
-        )
-        recipe_orm = self.db.execute(stmt).scalar_one()
+        now = datetime.now(timezone.utc)
+        recipe_data = {
+            "title": recipe.title,
+            "author_alias": recipe.author_alias,
+            "photo_url": recipe.photo_url,
+            "prep_time_minutes": recipe.prep_time_minutes,
+            "yield": recipe.yield_amount,
+            "category": recipe.category,
+            "rating": float(recipe.rating) if recipe.rating is not None else None,
+            "tags": recipe.tags or [],
+            "is_published": recipe.is_published,
+            "is_community": recipe.is_community,
+            "updated_at": datetime_to_iso(recipe.updated_at or now),
+        }
 
-        # Update recipe fields
-        recipe_orm.title = recipe.title
-        recipe_orm.author_alias = recipe.author_alias
-        recipe_orm.photo_url = recipe.photo_url
-        recipe_orm.prep_time_minutes = recipe.prep_time_minutes
-        recipe_orm.yield_amount = recipe.yield_amount
-        recipe_orm.category = recipe.category
-        recipe_orm.rating = recipe.rating
-        recipe_orm.tags = recipe.tags
-        recipe_orm.is_published = recipe.is_published
-        recipe_orm.updated_at = recipe.updated_at
+        table(self.client, "recipes").update(recipe_data).eq(
+            "id", str(recipe.recipe_id)
+        ).execute()
 
-        # Delete existing steps and recreate
-        for step_orm in recipe_orm.steps:
-            self.db.delete(step_orm)
+        # Replace steps
+        table(self.client, "recipe_steps").delete().eq(
+            "recipe_id", str(recipe.recipe_id)
+        ).execute()
 
-        # Add new steps
-        for step in recipe.steps:
-            step_orm = RecipeStepORM(
-                id=step.step_id,
-                recipe_id=recipe.recipe_id,
-                step_number=step.step_number,
-                instruction_md=step.instruction_md,
-                ingredients_json=step.ingredients_json,
-                time_minutes=step.time_minutes,
-            )
-            recipe_orm.steps.append(step_orm)
+        if recipe.steps:
+            steps_payload = [
+                {
+                    "id": str(step.step_id),
+                    "recipe_id": str(recipe.recipe_id),
+                    "step_number": step.step_number,
+                    "instruction_md": step.instruction_md,
+                    "ingredients_json": step.ingredients_json,
+                    "time_minutes": step.time_minutes,
+                }
+                for step in recipe.steps
+            ]
+            table(self.client, "recipe_steps").insert(steps_payload).execute()
 
-        self.db.commit()
-        self.db.refresh(recipe_orm)
-
-        return self._to_domain(recipe_orm)
+        updated = self.get_by_id(recipe.recipe_id)
+        return updated or recipe
 
     def delete(self, recipe_id: UUID) -> bool:
         """Delete recipe by ID."""
-        stmt = select(RecipeORM).where(RecipeORM.id == recipe_id)
-        recipe_orm = self.db.execute(stmt).scalar_one_or_none()
+        # Remove steps first
+        table(self.client, "recipe_steps").delete().eq(
+            "recipe_id", str(recipe_id)
+        ).execute()
 
-        if recipe_orm:
-            self.db.delete(recipe_orm)
-            self.db.commit()
-            return True
-
-        return False
+        response = (
+            table(self.client, "recipes").delete().eq("id", str(recipe_id)).execute()
+        )
+        return bool(response.data)
 
     def exists(self, recipe_id: UUID) -> bool:
         """Check if recipe exists."""
-        stmt = select(func.count()).where(RecipeORM.id == recipe_id)
-        count = self.db.execute(stmt).scalar() or 0
-        return count > 0
-
-    def _to_domain(self, recipe_orm: RecipeORM) -> DomainRecipe:
-        """Convert ORM to domain entity."""
-        steps = [
-            DomainRecipeStep(
-                step_id=step_orm.id,
-                recipe_id=step_orm.recipe_id,
-                step_number=step_orm.step_number,
-                instruction_md=step_orm.instruction_md,
-                ingredients_json=step_orm.ingredients_json or [],
-                time_minutes=step_orm.time_minutes,
-            )
-            for step_orm in sorted(recipe_orm.steps, key=lambda s: s.step_number)
-        ]
-
-        return DomainRecipe(
-            recipe_id=recipe_orm.id,
-            title=recipe_orm.title,
-            author_user_id=recipe_orm.author_user_id,
-            author_alias=recipe_orm.author_alias,
-            photo_url=recipe_orm.photo_url,
-            prep_time_minutes=recipe_orm.prep_time_minutes,
-            yield_amount=recipe_orm.yield_amount,
-            category=recipe_orm.category,
-            rating=Decimal(str(recipe_orm.rating)) if recipe_orm.rating else None,
-            tags=recipe_orm.tags or [],
-            is_published=recipe_orm.is_published,
-            is_community=recipe_orm.is_community,
-            created_at=recipe_orm.created_at,
-            updated_at=recipe_orm.updated_at,
-            steps=steps,
+        response = (
+            table(self.client, "recipes")
+            .select("id", count="exact")
+            .eq("id", str(recipe_id))
+            .limit(1)
+            .execute()
         )
+        return bool(response.count and response.count > 0)
 
     # === FAVORITES ===
 
     def add_favorite(self, user_id: UUID, recipe_id: UUID) -> bool:
         """Add recipe to user favorites."""
-        existing = self.db.execute(
-            select(UserFavoriteRecipeORM).where(
-                UserFavoriteRecipeORM.user_id == user_id,
-                UserFavoriteRecipeORM.recipe_id == recipe_id,
-            )
-        ).scalar_one_or_none()
-
-        if existing:
+        existing = (
+            table(self.client, "user_favorite_recipes")
+            .select("recipe_id", count="exact")
+            .eq("user_id", str(user_id))
+            .eq("recipe_id", str(recipe_id))
+            .execute()
+        )
+        if existing.count and existing.count > 0:
             return False
 
-        favorite = UserFavoriteRecipeORM(user_id=user_id, recipe_id=recipe_id)
-        self.db.add(favorite)
-        self.db.commit()
-        return True
+        response = (
+            table(self.client, "user_favorite_recipes")
+            .insert({"user_id": str(user_id), "recipe_id": str(recipe_id)})
+            .execute()
+        )
+        return bool(response.data)
 
     def remove_favorite(self, user_id: UUID, recipe_id: UUID) -> bool:
         """Remove recipe from user favorites."""
-        favorite = self.db.execute(
-            select(UserFavoriteRecipeORM).where(
-                UserFavoriteRecipeORM.user_id == user_id,
-                UserFavoriteRecipeORM.recipe_id == recipe_id,
-            )
-        ).scalar_one_or_none()
-
-        if not favorite:
-            return False
-
-        self.db.delete(favorite)
-        self.db.commit()
-        return True
+        response = (
+            table(self.client, "user_favorite_recipes")
+            .delete()
+            .eq("user_id", str(user_id))
+            .eq("recipe_id", str(recipe_id))
+            .execute()
+        )
+        return bool(response.data)
 
     def is_favorite(self, user_id: UUID, recipe_id: UUID) -> bool:
         """Check if recipe is in user favorites."""
-        stmt = select(func.count()).select_from(UserFavoriteRecipeORM).where(
-            UserFavoriteRecipeORM.user_id == user_id,
-            UserFavoriteRecipeORM.recipe_id == recipe_id,
+        response = (
+            table(self.client, "user_favorite_recipes")
+            .select("recipe_id", count="exact")
+            .eq("user_id", str(user_id))
+            .eq("recipe_id", str(recipe_id))
+            .execute()
         )
-        count = self.db.execute(stmt).scalar() or 0
-        return count > 0
+        return bool(response.count and response.count > 0)
 
     def get_user_favorites(
         self,
@@ -294,39 +273,111 @@ class RecipeRepository:
         search: Optional[str] = None,
     ) -> Tuple[List[DomainRecipe], int]:
         """Get user favorite recipes."""
-        stmt = (
-            select(RecipeORM)
-            .join(UserFavoriteRecipeORM)
-            .options(selectinload(RecipeORM.steps))
-            .where(UserFavoriteRecipeORM.user_id == user_id)
+        favorite_ids = [fid for fid in self.get_user_favorite_ids(user_id) if fid]
+        if not favorite_ids:
+            return [], 0
+
+        id_strings = [str(rid) for rid in favorite_ids]
+
+        query = (
+            table(self.client, "recipes")
+            .select("*", count="exact")
+            .in_("id", id_strings)
         )
-
-        # Apply filters
         if category:
-            stmt = stmt.where(RecipeORM.category == category)
+            query = query.eq("category", category)
         if search:
-            search_pattern = f"%{search}%"
-            stmt = stmt.where(
-                or_(
-                    RecipeORM.title.ilike(search_pattern),
-                    RecipeORM.author_alias.ilike(search_pattern),
-                )
-            )
+            like = f"%{search}%"
+            query = query.or_(f"title.ilike.{like},author_alias.ilike.{like}")
 
-        count_stmt = select(func.count()).select_from(stmt.subquery())
-        total = self.db.execute(count_stmt).scalar() or 0
+        start, end = page_range(page, page_size)
+        response = query.order("created_at", desc=True).range(start, end).execute()
 
-        offset = (page - 1) * page_size
-        stmt = stmt.order_by(UserFavoriteRecipeORM.created_at.desc()).offset(offset).limit(page_size)
+        records: List[Dict[str, Any]] = response.data or []
+        total = response.count or 0
 
-        recipes_orm = self.db.execute(stmt).scalars().all()
-        return [self._to_domain(r) for r in recipes_orm], total
+        steps_map = self._fetch_steps([r["id"] for r in records])
+        recipes = [
+            self._to_domain(record, steps_map.get(str(record["id"]), []))
+            for record in records
+        ]
+        return recipes, total
 
     def get_user_favorite_ids(self, user_id: UUID) -> List[UUID]:
         """Get list of recipe IDs that user has favorited."""
-        stmt = select(UserFavoriteRecipeORM.recipe_id).where(
-            UserFavoriteRecipeORM.user_id == user_id
+        response = (
+            table(self.client, "user_favorite_recipes")
+            .select("recipe_id")
+            .eq("user_id", str(user_id))
+            .execute()
         )
-        result = self.db.execute(stmt).scalars().all()
-        return list(result)
+        favorite_ids: List[UUID] = []
+        for item in response.data or []:
+            recipe_id = to_uuid(item.get("recipe_id"))
+            if recipe_id:
+                favorite_ids.append(recipe_id)
+        return favorite_ids
+
+    # === Internal helpers ===
+
+    def _fetch_steps(self, recipe_ids: List[str]) -> Dict[str, List[DomainRecipeStep]]:
+        """Fetch steps for a collection of recipes."""
+        recipe_ids = [rid for rid in recipe_ids if rid]
+        if not recipe_ids:
+            return {}
+
+        response = (
+            table(self.client, "recipe_steps")
+            .select("*")
+            .in_("recipe_id", [str(rid) for rid in recipe_ids])
+            .order("step_number", desc=False)
+            .execute()
+        )
+
+        steps_map: Dict[str, List[DomainRecipeStep]] = {}
+        for record in response.data or []:
+            rid = str(record.get("recipe_id"))
+            steps_map.setdefault(rid, []).append(self._to_domain_step(record))
+
+        for rid in steps_map:
+            steps_map[rid] = sorted(steps_map[rid], key=lambda s: s.step_number)
+        return steps_map
+
+    def _to_domain_step(self, record: Dict[str, Any]) -> DomainRecipeStep:
+        """Convert Supabase record to domain recipe step."""
+        return DomainRecipeStep(
+            step_id=to_uuid(record.get("id")),
+            recipe_id=to_uuid(record.get("recipe_id")),
+            step_number=record.get("step_number") or 0,
+            instruction_md=record.get("instruction_md") or "",
+            ingredients_json=record.get("ingredients_json") or [],
+            time_minutes=record.get("time_minutes"),
+        )
+
+    def _to_domain(
+        self, record: Dict[str, Any], steps: List[DomainRecipeStep]
+    ) -> DomainRecipe:
+        """Convert Supabase record to domain recipe."""
+        rating_value = record.get("rating")
+        rating_decimal = (
+            Decimal(str(rating_value)) if rating_value is not None else None
+        )
+
+        return DomainRecipe(
+            recipe_id=to_uuid(record.get("id")),
+            title=record.get("title"),
+            author_user_id=to_uuid(record.get("author_user_id")),
+            author_alias=record.get("author_alias"),
+            photo_url=record.get("photo_url"),
+            prep_time_minutes=record.get("prep_time_minutes"),
+            yield_amount=record.get("yield"),
+            category=record.get("category"),
+            rating=rating_decimal,
+            tags=record.get("tags") or [],
+            is_published=bool(record.get("is_published", False)),
+            is_community=bool(record.get("is_community", False)),
+            created_at=to_datetime(record.get("created_at")),
+            updated_at=to_datetime(record.get("updated_at")),
+            steps=steps,
+        )
 

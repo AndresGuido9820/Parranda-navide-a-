@@ -17,10 +17,23 @@ export const MyAccountPage: React.FC = () => {
   const completedNovenas = novenaProgress?.completed_count ?? 0;
   const participationLevel = Math.round((completedNovenas / 9) * 100);
 
-  const avatarUrl = userProfile?.avatar_url || 
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      userProfile?.full_name || userProfile?.email || 'User'
-    )}&background=dc2626&color=fff&size=200`;
+  // Helper to get avatar URL with cache busting based on updated_at
+  const getAvatarUrl = (url: string | null | undefined) => {
+    if (!url) {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        userProfile?.full_name || userProfile?.email || 'User'
+      )}&background=dc2626&color=fff&size=200`;
+    }
+    // Add cache busting parameter using updated_at timestamp
+    // This ensures the browser refreshes when the profile is updated
+    const cacheBust = userProfile?.updated_at 
+      ? new Date(userProfile.updated_at).getTime() 
+      : Date.now();
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}v=${cacheBust}`;
+  };
+
+  const avatarUrl = getAvatarUrl(userProfile?.avatar_url);
 
   const memberSince = userProfile?.created_at 
     ? new Date(userProfile.created_at).toLocaleDateString('es-ES', { 
@@ -90,9 +103,17 @@ export const MyAccountPage: React.FC = () => {
           <div className="bg-red-950/40 backdrop-blur-md border border-red-800/50 rounded-2xl p-8 mb-6">
             <div className="flex flex-col md:flex-row items-center gap-6">
               <img
+                key={userProfile?.updated_at || userProfile?.id}
                 src={avatarUrl}
                 alt={userProfile?.full_name || 'Profile'}
                 className="w-32 h-32 rounded-full border-4 border-red-300/30 object-cover"
+                onError={(e) => {
+                  console.error("Error loading avatar image:", avatarUrl);
+                  // Fallback to default avatar on error
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    userProfile?.full_name || userProfile?.email || 'User'
+                  )}&background=dc2626&color=fff&size=200`;
+                }}
               />
               <div className="flex-1 text-center md:text-left">
                 <h1 className="text-3xl font-bold text-white mb-2">

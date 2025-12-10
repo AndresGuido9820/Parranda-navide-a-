@@ -110,16 +110,23 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onLogout, avatarUrl, onClose
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-lg cursor-pointer border border-red-500/22"
-        style={{
-          backgroundImage: `url(${avatarUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center'
-        }}
+        className="w-10 h-10 rounded-lg cursor-pointer border border-red-500/22 overflow-hidden relative"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls="userMenu"
-      />
+      >
+        <img
+          src={avatarUrl}
+          alt="User avatar"
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            // Fallback to default avatar on error
+            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              'U'
+            )}&background=dc2626&color=fff&size=200`;
+          }}
+        />
+      </button>
 
       {/* Menu dropdown - Portal */}
       {isOpen && (

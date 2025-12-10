@@ -6,7 +6,7 @@ import { useProfile, useUpdateProfile, useUploadAvatar } from "../hooks/useProfi
 
 export const EditAccountPage: React.FC = () => {
   const navigate = useNavigate();
-  const { data: profile, isLoading } = useProfile();
+  const { data: profile, isLoading, refetch } = useProfile();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
 
@@ -30,14 +30,30 @@ export const EditAccountPage: React.FC = () => {
       });
       if (profile.avatar_url) {
         setProfileImage(profile.avatar_url);
+      } else if (!imageFile) {
+        // Reset to default if no avatar and no new file selected
+        setProfileImage(null);
       }
     }
-  }, [profile]);
+  }, [profile, imageFile]);
 
-  const avatarUrl = profileImage || 
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      formData.full_name || profile?.email || 'User'
-    )}&background=dc2626&color=fff&size=200`;
+  // Add cache busting parameter if it's a URL (not a data URL)
+  const getAvatarUrl = (url: string | null) => {
+    if (!url) {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+        formData.full_name || profile?.email || 'User'
+      )}&background=dc2626&color=fff&size=200`;
+    }
+    // If it's a data URL (preview), return as is
+    if (url.startsWith('data:')) {
+      return url;
+    }
+    // If it's a regular URL, add cache busting parameter
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}t=${Date.now()}`;
+  };
+
+  const avatarUrl = getAvatarUrl(profileImage);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -64,19 +80,48 @@ export const EditAccountPage: React.FC = () => {
     setIsSaving(true);
 
     try {
+      let newAvatarUrl: string | undefined = undefined;
+
       // Upload avatar if changed
       if (imageFile) {
-        await uploadAvatar.mutateAsync(imageFile);
+        console.log("Uploading avatar...");
+        newAvatarUrl = await uploadAvatar.mutateAsync(imageFile);
+        console.log("Avatar uploaded, URL:", newAvatarUrl);
+        // Update local state immediately with new avatar URL
+        if (newAvatarUrl) {
+          setProfileImage(newAvatarUrl);
+        }
       }
 
-      // Update profile data
-      await updateProfile.mutateAsync({
+      // Update profile data (including avatar_url if uploaded)
+      console.log("Updating profile with avatar_url:", newAvatarUrl);
+      const updatedProfile = await updateProfile.mutateAsync({
         full_name: formData.full_name || undefined,
         alias: formData.alias || undefined,
         phone: formData.phone || undefined,
+        avatar_url: newAvatarUrl,
       });
 
-      navigate("/my-account");
+      console.log("Profile updated:", updatedProfile);
+
+      // Update local state with the updated profile
+      if (updatedProfile.avatar_url) {
+        setProfileImage(updatedProfile.avatar_url);
+        console.log("Updated profileImage state to:", updatedProfile.avatar_url);
+      }
+
+      // Force refetch to ensure latest data
+      console.log("Refetching profile...");
+      const refetchedData = await refetch();
+      console.log("Refetched profile:", refetchedData.data);
+
+      // Clear imageFile to reset the form
+      setImageFile(null);
+
+      // Small delay to ensure state updates, then navigate
+      setTimeout(() => {
+        navigate("/my-account", { replace: true });
+      }, 200);
     } catch (error) {
       console.error("Error updating profile:", error);
       alert("Error al guardar los cambios. Por favor intenta de nuevo.");
@@ -158,9 +203,17 @@ export const EditAccountPage: React.FC = () => {
                 <div className="flex items-center gap-4">
                   <div className="relative">
                     <img
+                      key={profileImage || profile?.updated_at || Date.now()}
                       src={avatarUrl}
                       alt="Profile"
                       className="w-20 h-20 rounded-full border-2 border-red-400/40 object-cover"
+                      onError={(e) => {
+                        console.error("Error loading avatar image:", avatarUrl);
+                        // Fallback to default avatar on error
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                          formData.full_name || profile?.email || 'User'
+                        )}&background=dc2626&color=fff&size=200`;
+                      }}
                     />
                     {uploadAvatar.isPending && (
                       <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">

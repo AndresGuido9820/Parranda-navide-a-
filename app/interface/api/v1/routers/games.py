@@ -4,7 +4,7 @@ from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from app.application.dtos.auth import UserResponse
 from app.application.dtos.games import (
@@ -38,12 +38,12 @@ from app.interface.api.v1.dependencies.auth import get_current_user, get_current
 router = APIRouter(prefix="/games", tags=["Games"])
 
 
-def get_game_stats_repo(db: Session = Depends(get_db_session)) -> GameStatsRepository:
+def get_game_stats_repo(db: Client = Depends(get_db_session)) -> GameStatsRepository:
     """Get game stats repository dependency."""
     return GameStatsRepository(db)
 
 
-def get_ano_viejo_repo(db: Session = Depends(get_db_session)) -> AnoViejoRepository:
+def get_ano_viejo_repo(db: Client = Depends(get_db_session)) -> AnoViejoRepository:
     """Get año viejo repository dependency."""
     return AnoViejoRepository(db)
 

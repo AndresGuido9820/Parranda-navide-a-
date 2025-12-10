@@ -53,7 +53,7 @@ export const uploadAvatar = async (file: File): Promise<string> => {
   const formData = new FormData();
   formData.append('file', file);
 
-  const response = await api.post<{ data: { url: string } }>('/uploads/avatar', formData, {
+  const response = await api.post<{ data: { url: string } }>('/api/v1/uploads/avatar', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

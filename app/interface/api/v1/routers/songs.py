@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from app.application.dtos.response import APIResponse
 from app.application.dtos.songs import (
@@ -27,7 +27,7 @@ from app.infrastructure.persistence.sqlalchemy.repositories.song import SongRepo
 router = APIRouter(prefix="/songs", tags=["Songs"])
 
 
-def get_song_repository(db: Session = Depends(get_db_session)) -> SongRepository:
+def get_song_repository(db: Client = Depends(get_db_session)) -> SongRepository:
     """Get song repository dependency."""
     return SongRepository(db)
 

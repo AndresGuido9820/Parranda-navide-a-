@@ -5,13 +5,17 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+try:
+    from mangum import Mangum  # type: ignore[import-not-found]
+except ImportError:  # pragma: no cover - optional for local dev
+    Mangum = None
+
 from app.domain.errors import (
     ConflictError,
     NotFoundError,
     UnauthorizedError,
     ValidationError,
 )
-from app.infrastructure.config.settings import settings
 from app.interface.middleware.error_handler import (
     conflict_error_handler,
     general_exception_handler,
@@ -23,17 +27,19 @@ from app.interface.middleware.error_handler import (
 )
 from app.interface.middleware.logging_middleware import logging_middleware
 
-from .routers.auth import router as auth_router
+from .api.v1.routers.games import router as games_router
+from .api.v1.routers.novenas import router as novenas_router
 from .api.v1.routers.recipes import router as recipes_router
 from .api.v1.routers.songs import router as songs_router
-from .api.v1.routers.games import router as games_router
 from .api.v1.routers.uploads import router as uploads_router
-from .api.v1.routers.novenas import router as novenas_router
+from .routers.auth import router as auth_router
 
 # Create FastAPI app
 app = FastAPI(
     title="Parranda Navideña API",
-    description="API para autenticación, Novenas, Recetas y Comunidad, Música, Dinámicas",
+    description=(
+        "API para autenticación, Novenas, Recetas y Comunidad, " "Música, Dinámicas"
+    ),
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -83,3 +89,7 @@ async def root():
 async def health_check():
     """Health check endpoint."""
     return {"status": "healthy"}
+
+
+# AWS Lambda entrypoint
+handler = Mangum(app) if Mangum else None

@@ -1,69 +1,68 @@
-"""Song repository implementation."""
+"""Song repository implementation using Supabase."""
 
 from typing import List, Optional
 from uuid import UUID
 
-from sqlalchemy import or_
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from app.application.ports.repositories.song_repository import SongRepositoryPort
 from app.domain.entities.song import Song
-from app.infrastructure.persistence.sqlalchemy.models.music import Song as SongORM
+from app.infrastructure.persistence.sqlalchemy.supabase_helpers import (
+    page_range,
+    table,
+    to_datetime,
+    to_uuid,
+)
 
 
 class SongRepository(SongRepositoryPort):
-    """SQLAlchemy implementation of song repository."""
+    """Supabase implementation of song repository."""
 
-    def __init__(self, db: Session):
-        self.db = db
-
-    def _to_domain(self, orm_song: SongORM) -> Song:
-        """Convert ORM model to domain entity."""
-        return Song(
-            id=orm_song.id,
-            title=orm_song.title,
-            artist=orm_song.artist,
-            youtube_id=orm_song.youtube_video_id,
-            thumbnail_url=orm_song.thumbnail_url,
-            duration_seconds=orm_song.duration_seconds,
-            genre=orm_song.genre,
-            is_christmas=orm_song.is_christmas,
-            created_at=orm_song.created_at,
-            updated_at=orm_song.created_at,  # ORM doesn't have updated_at
-        )
-
-    def _to_orm(self, song: Song) -> SongORM:
-        """Convert domain entity to ORM model."""
-        return SongORM(
-            id=song.id,
-            title=song.title,
-            artist=song.artist,
-            youtube_video_id=song.youtube_id,
-            thumbnail_url=song.thumbnail_url,
-            duration_seconds=song.duration_seconds,
-            genre=song.genre,
-            is_christmas=song.is_christmas,
-        )
+    def __init__(self, client: Client):
+        self.client = client
 
     def create(self, song: Song) -> Song:
         """Create a new song."""
-        orm_song = self._to_orm(song)
-        self.db.add(orm_song)
-        self.db.commit()
-        self.db.refresh(orm_song)
-        return self._to_domain(orm_song)
+        payload = {
+            "id": str(song.id),
+            "title": song.title,
+            "artist": song.artist,
+            "youtube_video_id": song.youtube_id,
+            "thumbnail_url": song.thumbnail_url,
+            "duration_seconds": song.duration_seconds,
+            "genre": song.genre,
+            "is_christmas": song.is_christmas,
+            "is_active": True,
+        }
+        response = table(self.client, "songs").insert(payload).execute()
+        record = response.data[0] if response.data else payload
+        return self._to_domain(record)
 
     def get_by_id(self, song_id: UUID) -> Optional[Song]:
         """Get song by ID."""
-        orm_song = self.db.query(SongORM).filter(SongORM.id == song_id).first()
-        return self._to_domain(orm_song) if orm_song else None
+        response = (
+            table(self.client, "songs")
+            .select("*")
+            .eq("id", str(song_id))
+            .limit(1)
+            .execute()
+        )
+        if not response.data:
+            return None
+        return self._to_domain(response.data[0])
 
     def get_by_youtube_id(self, youtube_id: str) -> Optional[Song]:
         """Get song by YouTube ID."""
-        orm_song = (
-            self.db.query(SongORM).filter(SongORM.youtube_video_id == youtube_id).first()
+        response = (
+            table(self.client, "songs")
+            .select("*")
+            .eq("youtube_video_id", youtube_id)
+            .limit(1)
+            .execute()
         )
-        return self._to_domain(orm_song) if orm_song else None
+        if not response.data:
+            return None
+        return self._to_domain(response.data[0])
 
     def get_all(
         self,
@@ -74,56 +73,61 @@ class SongRepository(SongRepositoryPort):
         search: Optional[str] = None,
     ) -> tuple[List[Song], int]:
         """Get all songs with pagination and filters."""
-        query = self.db.query(SongORM)
+        query = table(self.client, "songs").select("*", count="exact")
 
-        # Apply filters
         if genre:
-            query = query.filter(SongORM.genre == genre)
+            query = query.eq("genre", genre)
         if is_christmas is not None:
-            query = query.filter(SongORM.is_christmas == is_christmas)
+            query = query.eq("is_christmas", is_christmas)
         if search:
-            search_filter = f"%{search}%"
-            query = query.filter(
-                or_(
-                    SongORM.title.ilike(search_filter),
-                    SongORM.artist.ilike(search_filter),
-                )
-            )
+            like = f"%{search}%"
+            query = query.or_(f"title.ilike.{like},artist.ilike.{like}")
 
-        # Get total count
-        total = query.count()
+        start, end = page_range(page, page_size)
+        response = query.order("created_at", desc=True).range(start, end).execute()
 
-        # Apply pagination
-        offset = (page - 1) * page_size
-        songs = query.offset(offset).limit(page_size).all()
+        records = response.data or []
+        total = response.count or 0
 
-        return [self._to_domain(s) for s in songs], total
+        return [self._to_domain(r) for r in records], total
 
     def update(self, song: Song) -> Song:
         """Update an existing song."""
-        orm_song = self.db.query(SongORM).filter(SongORM.id == song.id).first()
+        payload = {
+            "title": song.title,
+            "artist": song.artist,
+            "youtube_video_id": song.youtube_id,
+            "thumbnail_url": song.thumbnail_url,
+            "duration_seconds": song.duration_seconds,
+            "genre": song.genre,
+            "is_christmas": song.is_christmas,
+        }
+        table(self.client, "songs").update(payload).eq("id", str(song.id)).execute()
 
-        if orm_song:
-            orm_song.title = song.title
-            orm_song.artist = song.artist
-            orm_song.youtube_video_id = song.youtube_id
-            orm_song.thumbnail_url = song.thumbnail_url
-            orm_song.duration_seconds = song.duration_seconds
-            orm_song.genre = song.genre
-            orm_song.is_christmas = song.is_christmas
-
-            self.db.commit()
-            self.db.refresh(orm_song)
-            return self._to_domain(orm_song)
-
-        return song
+        updated = self.get_by_id(song.id)
+        return updated or song
 
     def delete(self, song_id: UUID) -> bool:
         """Delete a song by ID."""
-        orm_song = self.db.query(SongORM).filter(SongORM.id == song_id).first()
-        if orm_song:
-            self.db.delete(orm_song)
-            self.db.commit()
-            return True
-        return False
+        response = (
+            table(self.client, "songs").delete().eq("id", str(song_id)).execute()
+        )
+        return bool(response.data)
+
+    def _to_domain(self, record) -> Song:
+        """Convert Supabase record to domain entity."""
+        return Song(
+            id=to_uuid(record.get("id")),
+            title=record.get("title"),
+            artist=record.get("artist"),
+            youtube_id=record.get("youtube_video_id"),
+            thumbnail_url=record.get("thumbnail_url"),
+            duration_seconds=record.get("duration_seconds"),
+            genre=record.get("genre"),
+            is_christmas=bool(record.get("is_christmas", True)),
+            created_at=to_datetime(record.get("created_at")),
+            updated_at=to_datetime(record.get("updated_at")) or to_datetime(
+                record.get("created_at")
+            ),
+        )
 

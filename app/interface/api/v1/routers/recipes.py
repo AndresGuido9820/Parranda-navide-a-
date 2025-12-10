@@ -4,7 +4,7 @@ from typing import List, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from app.application.dtos.recipes import (
     CreateRecipeRequest,
@@ -30,7 +30,7 @@ from app.interface.api.v1.dependencies.auth import get_current_user_optional
 router = APIRouter(prefix="/recipes", tags=["Recipes"])
 
 
-def get_recipe_repository(db: Session = Depends(get_db_session)) -> RecipeRepository:
+def get_recipe_repository(db: Client = Depends(get_db_session)) -> RecipeRepository:
     """Get recipe repository dependency."""
     return RecipeRepository(db)
 

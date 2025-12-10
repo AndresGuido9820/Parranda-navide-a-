@@ -1,7 +1,7 @@
 """Authentication router."""
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from supabase import Client
 
 from ...application.dtos.auth import (
     LoginRequest,
@@ -29,7 +29,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 @router.post(
     "/register", response_model=APIResponse, status_code=status.HTTP_201_CREATED
 )
-async def register(request: RegisterRequest, db: Session = Depends(get_db_session)):
+async def register(request: RegisterRequest, db: Client = Depends(get_db_session)):
     """Register a new user with email and password."""
     user_repository = UserRepository(db)
     use_case = RegisterUserUseCase(user_repository)
@@ -45,7 +45,7 @@ async def register(request: RegisterRequest, db: Session = Depends(get_db_sessio
 
 
 @router.post("/login", response_model=APIResponse)
-async def login(request: LoginRequest, db: Session = Depends(get_db_session)):
+async def login(request: LoginRequest, db: Client = Depends(get_db_session)):
     """Login with email and password."""
     user_repository = UserRepository(db)
     session_repository = SessionRepository(db)
@@ -74,7 +74,7 @@ async def get_me(current_user: UserResponse = Depends(get_current_user)):
 async def update_me(
     request: UpdateProfileRequest,
     current_user: UserResponse = Depends(get_current_user),
-    db: Session = Depends(get_db_session),
+    db: Client = Depends(get_db_session),
 ):
     """Update current user profile."""
     user_repository = UserRepository(db)
@@ -88,7 +88,7 @@ async def update_me(
 
 @router.post("/refresh", response_model=APIResponse)
 async def refresh_token(
-    request: RefreshTokenRequest, db: Session = Depends(get_db_session)
+    request: RefreshTokenRequest, db: Client = Depends(get_db_session)
 ):
     """Refresh access token using refresh token."""
     session_repository = SessionRepository(db)

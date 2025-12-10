@@ -1,6 +1,7 @@
 import { Snowflake } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useProfile } from "../../entities/account";
 import { useAuth } from "../../entities/auth";
 import { UserMenu } from "./UserMenu";
 
@@ -10,6 +11,7 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
   const { user, logout } = useAuth();
+  const { data: profile } = useProfile();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -36,9 +38,23 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
     { label: "Dinámicas navideñas", path: "/dinamicas" },
   ];
 
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-    user?.full_name || "U"
-  )}&background=random`;
+  // Get avatar URL from profile, with fallback to generated avatar
+  const getAvatarUrl = () => {
+    if (profile?.avatar_url) {
+      // Add cache busting parameter using updated_at timestamp
+      const cacheBust = profile.updated_at 
+        ? new Date(profile.updated_at).getTime() 
+        : Date.now();
+      const separator = profile.avatar_url.includes('?') ? '&' : '?';
+      return `${profile.avatar_url}${separator}v=${cacheBust}`;
+    }
+    // Fallback to generated avatar
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user?.full_name || profile?.full_name || "U"
+    )}&background=dc2626&color=fff&size=200`;
+  };
+
+  const avatarUrl = getAvatarUrl();
 
   return (
     <>
@@ -98,6 +114,7 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
                 <img
                   src={avatarUrl}
                   alt={user.full_name || 'Usuario'}
+                  loading="lazy"
                   className="w-9 h-9 rounded-lg border-2 border-red-300/30"
                 />
               </div>

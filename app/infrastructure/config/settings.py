@@ -6,10 +6,13 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     """Application settings."""
 
-    # Database
+    # Database / Supabase
     database_url: str = (
         "postgresql://parranda_user:parranda_pass@localhost:5433/parranda"
     )
+    supabase_url: str = ""
+    supabase_service_role_key: str = ""
+    supabase_schema: str = "public"
 
     # JWT Authentication
     jwt_secret: str = "your-jwt-secret-here-change-in-production"

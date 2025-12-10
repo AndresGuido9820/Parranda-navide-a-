@@ -1,30 +1,16 @@
 export const config = {
-  API_URL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  // API Configuration - must be set via VITE_API_URL environment variable
+  API_URL: import.meta.env.VITE_API_URL || '',
+  
   APP_NAME: 'Parranda Navideña',
   VERSION: '1.0.0',
-  
-  // S3 Media Storage
-  S3_BUCKET_URL: import.meta.env.VITE_S3_BUCKET_URL || 'https://parranda-navidena-media-1764647392.s3.amazonaws.com',
-  S3_PATHS: {
-    SONGS: 'songs',
-    RECIPES: 'recipes',
-    AVATARS: 'avatars',
-  },
 } as const;
 
-// Helper functions for S3 URLs
-export const getS3Url = (path: string): string => {
-  return `${config.S3_BUCKET_URL}/${path}`;
-};
+// Validate required environment variables
+if (!config.API_URL) {
+  throw new Error('VITE_API_URL is required. Please set it in your environment variables.');
+}
 
-export const getSongThumbnailUrl = (filename: string): string => {
-  return `${config.S3_BUCKET_URL}/${config.S3_PATHS.SONGS}/${filename}`;
-};
-
-export const getRecipeImageUrl = (filename: string): string => {
-  return `${config.S3_BUCKET_URL}/${config.S3_PATHS.RECIPES}/${filename}`;
-};
-
-export const getAvatarUrl = (filename: string): string => {
-  return `${config.S3_BUCKET_URL}/${config.S3_PATHS.AVATARS}/${filename}`;
-};
+// Note: All image URLs (avatars, recipe photos, song thumbnails) come from the backend API
+// The backend returns complete S3 URLs in the response (avatar_url, photo_url, thumbnail_url)
+// No need to construct S3 URLs manually in the frontend

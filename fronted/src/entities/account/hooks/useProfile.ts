@@ -32,34 +32,28 @@ export const useUpdateProfile = () => {
   return useMutation({
     mutationFn: (data: UpdateProfileRequest) => updateProfile(data),
     onSuccess: (updatedProfile) => {
-      // Update the profile cache
+      console.log("Profile updated successfully:", updatedProfile);
+      // Update the profile cache immediately
       queryClient.setQueryData(PROFILE_QUERY_KEY, updatedProfile);
       
-      // Also invalidate to refetch fresh data
+      // Also invalidate to force refetch fresh data
       queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
+      
+      // Refetch to ensure we have the latest data
+      queryClient.refetchQueries({ queryKey: PROFILE_QUERY_KEY });
     },
   });
 };
 
 /**
- * Hook to upload avatar
+ * Hook to upload avatar (only uploads, doesn't update profile)
  */
 export const useUploadAvatar = () => {
-  const queryClient = useQueryClient();
-  const updateProfileMutation = useUpdateProfile();
-
   return useMutation({
     mutationFn: async (file: File) => {
-      // Upload the file
+      // Upload the file and return the URL
       const avatarUrl = await uploadAvatar(file);
-      
-      // Update profile with new avatar URL
-      await updateProfileMutation.mutateAsync({ avatar_url: avatarUrl });
-      
       return avatarUrl;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: PROFILE_QUERY_KEY });
     },
   });
 };
