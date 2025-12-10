@@ -3,9 +3,9 @@ import { MainLayout } from '../../../shared/layouts/MainLayout';
 import { MusicSearchBar, PlayerCard, PlaylistQueue, SongItem } from '../components';
 import { useMusicPlayer } from '../hooks/useMusicPlayer';
 import { useYouTubeSearch } from '../hooks/useYouTubeSearch';
-import { Spinner } from '@heroui/react';
+import { useDefaultSongs } from '../hooks/useDefaultSongs';
+import { SongItemSkeleton } from '../../../shared/components/skeletons/Skeleton';
 import type { Song } from '../types/song.types';
-import { MOCK_SONGS } from '../data/mockSongs';
 
 export const MusicaPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -14,14 +14,20 @@ export const MusicaPage: React.FC = () => {
   const player = useMusicPlayer();
   const { addToQueue, queue, currentSong } = player;
 
-  // Búsqueda en YouTube cuando hay query
-  const shouldSearchYouTube = searchQuery.trim().length > 0;
+  // Canciones por defecto desde la API
+  const {
+    data: defaultSongs = [],
+    isLoading: isLoadingDefault,
+  } = useDefaultSongs();
+
+  // Búsqueda cuando hay query
+  const shouldSearch = searchQuery.trim().length > 0;
   
   const {
-    data: youtubeResults = [],
-    isLoading: isLoadingYouTube,
-    error: youtubeError,
-  } = useYouTubeSearch(searchQuery, shouldSearchYouTube);
+    data: searchResults = [],
+    isLoading: isLoadingSearch,
+    error: searchError,
+  } = useYouTubeSearch(searchQuery, shouldSearch);
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
@@ -35,9 +41,9 @@ export const MusicaPage: React.FC = () => {
     addToQueue(song);
   };
 
-  // Mostrar las primeras 20 canciones por defecto, o resultados de búsqueda si hay query
-  const defaultSongs = MOCK_SONGS.slice(0, 20);
-  const displaySongs = shouldSearchYouTube ? youtubeResults : defaultSongs;
+  // Mostrar resultados de búsqueda o canciones por defecto
+  const displaySongs = shouldSearch ? searchResults : defaultSongs;
+  const isLoading = shouldSearch ? isLoadingSearch : isLoadingDefault;
 
   return (
     <MainLayout>
@@ -60,33 +66,34 @@ export const MusicaPage: React.FC = () => {
             </div>
 
             <h3 className="text-xl font-bold text-white dark:text-white mb-4">
-              {shouldSearchYouTube ? 'Resultados de búsqueda' : 'Canciones Navideñas'}
+              {shouldSearch ? 'Resultados de búsqueda' : 'Canciones Navideñas'}
             </h3>
 
             {!searchQuery && (
               <div className="mb-4 p-4 bg-blue-100 dark:bg-blue-900/20 border border-blue-300 dark:border-blue-700 rounded-lg">
                 <p className="text-sm text-blue-800 dark:text-blue-200">
-                  💡 Mostrando las primeras 20 canciones. Escribe en el buscador para buscar más canciones.
+                  💡 Mostrando las primeras 20 canciones. Escribe en el buscador para buscar más.
                 </p>
               </div>
             )}
 
-            {youtubeError && (
+            {searchError && (
               <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/20 border border-red-300 dark:border-red-700 rounded-lg">
                 <p className="text-sm text-red-800 dark:text-red-200">
-                  Error al buscar en YouTube: {youtubeError instanceof Error ? youtubeError.message : 'Error desconocido'}
+                  Error al buscar: {searchError instanceof Error ? searchError.message : 'Error desconocido'}
                 </p>
               </div>
             )}
 
-            {isLoadingYouTube && (
-              <div className="flex justify-center items-center py-8">
-                <Spinner size="lg" />
-                <span className="ml-3 text-gray-600 dark:text-gray-400">Buscando en YouTube...</span>
+            {isLoading && (
+              <div className="space-y-2">
+                {[...Array(6)].map((_, i) => (
+                  <SongItemSkeleton key={i} />
+                ))}
               </div>
             )}
 
-            {(!isLoadingYouTube || !shouldSearchYouTube) && (
+            {!isLoading && (
               <div className="space-y-2">
                 {displaySongs.length === 0 && searchQuery ? (
                   <div className="text-center py-8 text-gray-600 dark:text-gray-400">

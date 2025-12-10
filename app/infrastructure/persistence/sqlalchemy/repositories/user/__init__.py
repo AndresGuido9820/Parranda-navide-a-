@@ -1,6 +1,7 @@
 """User repository implementation."""
 
-from typing import Optional
+from datetime import datetime
+from typing import Any, Dict, Optional
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -25,6 +26,7 @@ class UserRepository:
             full_name=user.full_name,
             alias=user.alias,
             phone=user.phone,
+            avatar_url=user.avatar_url,
             password_hash=user.password_hash,
             is_active=user.is_active,
             created_at=user.created_at,
@@ -53,18 +55,20 @@ class UserRepository:
         user_orm = self.db.execute(stmt).scalar_one_or_none()
         return self._to_domain(user_orm) if user_orm else None
 
-    def update(self, user: DomainUser) -> DomainUser:
-        """Update user."""
-        stmt = select(UserORM).where(UserORM.id == user.user_id)
-        user_orm = self.db.execute(stmt).scalar_one()
+    def update(self, user_id: str, data: Dict[str, Any]) -> DomainUser:
+        """Update user with partial data."""
+        stmt = select(UserORM).where(UserORM.id == user_id)
+        user_orm = self.db.execute(stmt).scalar_one_or_none()
+        
+        if not user_orm:
+            raise ValueError("User not found")
 
-        user_orm.email = str(user.email)
-        user_orm.full_name = user.full_name
-        user_orm.alias = user.alias
-        user_orm.phone = user.phone
-        user_orm.password_hash = user.password_hash
-        user_orm.is_active = user.is_active
-        user_orm.updated_at = user.updated_at
+        # Update only provided fields
+        for key, value in data.items():
+            if hasattr(user_orm, key):
+                setattr(user_orm, key, value)
+        
+        user_orm.updated_at = datetime.utcnow()
 
         self.db.commit()
         self.db.refresh(user_orm)
@@ -78,6 +82,7 @@ class UserRepository:
             full_name=user_orm.full_name,
             alias=user_orm.alias,
             phone=user_orm.phone,
+            avatar_url=user_orm.avatar_url,
             password_hash=user_orm.password_hash,
             is_active=user_orm.is_active,
             created_at=user_orm.created_at,

@@ -30,7 +30,7 @@ export const NinoJesusPage: React.FC = () => {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-[#1a0a0a] px-2 sm:px-4 py-2 sm:py-4 flex flex-col">
+      <div className="min-h-screen px-2 sm:px-4 py-2 sm:py-4 flex flex-col">
         <div className="max-w-7xl mx-auto w-full flex flex-col h-full">
           {/* Botón Regresar */}
           <button
@@ -90,12 +90,12 @@ export const NinoJesusPage: React.FC = () => {
               <div
                 key={card.id}
                 onClick={() => revealCard(card.id)}
-                className={`aspect-square rounded-lg border-2 transition-all cursor-pointer flex items-center justify-center ${
+                className={`aspect-square rounded-lg border-2 transition-all cursor-pointer flex items-center justify-center backdrop-blur-sm ${
                   card.isRevealed
                     ? card.isNinoDios
                       ? 'bg-yellow-600 border-yellow-400 shadow-lg shadow-yellow-500/50'
-                      : 'bg-[#3a2020] border-[#5a3030]'
-                    : 'bg-[#2a1515] border-[#4a2020] hover:border-red-700 hover:scale-105'
+                      : 'bg-black/40 border-white/20'
+                    : 'bg-black/30 border-white/10 hover:border-red-500/50 hover:scale-105'
                 }`}
               >
                 <span className="text-3xl sm:text-5xl">

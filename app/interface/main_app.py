@@ -24,6 +24,11 @@ from app.interface.middleware.error_handler import (
 from app.interface.middleware.logging_middleware import logging_middleware
 
 from .routers.auth import router as auth_router
+from .api.v1.routers.recipes import router as recipes_router
+from .api.v1.routers.songs import router as songs_router
+from .api.v1.routers.games import router as games_router
+from .api.v1.routers.uploads import router as uploads_router
+from .api.v1.routers.novenas import router as novenas_router
 
 # Create FastAPI app
 app = FastAPI(
@@ -57,6 +62,11 @@ app.add_exception_handler(Exception, general_exception_handler)
 
 # Include routers
 app.include_router(auth_router, prefix="")
+app.include_router(recipes_router, prefix="/api/v1")
+app.include_router(songs_router, prefix="/api/v1")
+app.include_router(games_router, prefix="/api/v1")
+app.include_router(uploads_router, prefix="/api/v1")
+app.include_router(novenas_router, prefix="/api/v1")
 
 
 @app.get("/")

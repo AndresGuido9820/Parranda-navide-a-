@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 interface UserMenuProps {
   user: {
-    full_name?: string;
-    alias?: string;
+    full_name?: string | null;
+    alias?: string | null;
   } | null;
   onLogout: () => void;
   avatarUrl: string;
@@ -110,7 +110,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ onLogout, avatarUrl, onClose
       <button
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full cursor-pointer border border-red-500/22"
+        className="w-10 h-10 rounded-lg cursor-pointer border border-red-500/22"
         style={{
           backgroundImage: `url(${avatarUrl})`,
           backgroundSize: 'cover',

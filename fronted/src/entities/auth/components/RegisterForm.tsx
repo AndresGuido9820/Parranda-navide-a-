@@ -1,4 +1,4 @@
-import { Button, Form, Input, Link, Spinner } from '@heroui/react';
+import { ArrowRight, Eye, EyeOff, Loader2, Lock, Mail, User } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import type { RegisterRequest } from '../types';
@@ -8,81 +8,52 @@ interface RegisterFormProps {
 }
 
 export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
-  const { register: registerUser, isRegistering, error } = useAuth();
+  const { register: registerUser, isRegistering, registerError } = useAuth();
   const [formData, setFormData] = useState({
     full_name: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [successMessage, setSuccessMessage] = useState('');
 
-  const validateField = (name: string, value: string): string => {
-    const errors: Record<string, string> = {};
-
-    switch (name) {
-      case 'full_name':
-        if (!value.trim()) {
-          errors.full_name = 'El nombre completo es requerido';
-        } else if (value.trim().length < 3) {
-          errors.full_name = 'El nombre debe tener al menos 3 caracteres';
-        }
-        break;
-
-      case 'email':
-        if (!value.trim()) {
-          errors.email = 'El email es requerido';
-        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-          errors.email = 'Email no válido';
-        }
-        break;
-
-      case 'password':
-        if (!value) {
-          errors.password = 'La contraseña es requerida';
-        } else if (value.length < 6) {
-          errors.password = 'Mínimo 6 caracteres';
-        }
-        break;
-
-      case 'confirmPassword':
-        if (!value) {
-          errors.confirmPassword = 'Confirmar contraseña es requerido';
-        } else if (value !== formData.password) {
-          errors.confirmPassword = 'Las contraseñas no coinciden';
-        }
-        break;
-    }
-
-    return errors[name] || '';
-  };
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Limpiar error si el usuario empieza a escribir
+    setFormData((prev) => ({ ...prev, [name]: value }));
     if (fieldErrors[name]) {
-      setFieldErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+      setFieldErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
 
-    Object.keys(formData).forEach((key) => {
-      const error = validateField(
-        key,
-        formData[key as keyof typeof formData]
-      );
-      if (error) errors[key] = error;
-    });
+    if (!formData.full_name.trim()) {
+      errors.full_name = 'El nombre es requerido';
+    } else if (formData.full_name.trim().length < 3) {
+      errors.full_name = 'Mínimo 3 caracteres';
+    }
+
+    if (!formData.email.trim()) {
+      errors.email = 'El email es requerido';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Email no válido';
+    }
+
+    if (!formData.password) {
+      errors.password = 'La contraseña es requerida';
+    } else if (formData.password.length < 6) {
+      errors.password = 'Mínimo 6 caracteres';
+    }
+
+    if (!formData.confirmPassword) {
+      errors.confirmPassword = 'Confirma tu contraseña';
+    } else if (formData.confirmPassword !== formData.password) {
+      errors.confirmPassword = 'Las contraseñas no coinciden';
+    }
 
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -91,177 +62,179 @@ export const RegisterForm = ({ onSwitchToLogin }: RegisterFormProps) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSuccessMessage('');
-
-    // Validar antes de enviar
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       const { confirmPassword, ...userData } = formData;
-      await registerUser(userData as unknown as RegisterRequest);
-      setSuccessMessage('¡Cuenta creada exitosamente! Redirigiendo...');
-      setFormData({
-        full_name: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-      });
-      setFieldErrors({});
-      setTimeout(() => {
-        onSwitchToLogin();
-      }, 2000);
-    } catch (error) {
-      console.error('Register error:', error);
+      await registerUser(userData as RegisterRequest);
+      setSuccessMessage('¡Cuenta creada! Redirigiendo...');
+      setFormData({ full_name: '', email: '', password: '', confirmPassword: '' });
+      setTimeout(() => onSwitchToLogin(), 2000);
+    } catch (err) {
+      console.error('Register error:', err);
     }
   };
 
   return (
-    <Form
-      className="flex flex-col gap-6"
-      autoComplete="on"
-      onSubmit={handleSubmit}
-    >
-      {/* Título */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-default-700 text-white">Crear Cuenta</h2>
+    <>
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">Únete a la fiesta</h2>
+        <p className="text-gray-400 text-sm">Completa el formulario para empezar.</p>
       </div>
 
-      {/* Nombre Completo */}
-      <div>
-        <Input
-          isRequired
-          isInvalid={!!fieldErrors.full_name}
-          errorMessage={fieldErrors.full_name}
-          className="bg-white rounded-lg"
-          placeholder="Tu nombre completo"
-          type="text"
-          name="full_name"
-          value={formData.full_name}
-          onChange={handleChange}
-          autoComplete="name"
-          disabled={isRegistering}
-          classNames={{
-            errorMessage: 'text-red-600 font-bold text-base',
-          }}
-        />
-      </div>
-
-      {/* Email */}
-      <div>
-        <Input
-          isRequired
-          isInvalid={!!fieldErrors.email}
-          errorMessage={fieldErrors.email}
-      
-          placeholder="tucorreo@dominio.com"
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          autoComplete="email"
-          className = "bg-white rounded-lg"  
-          disabled={isRegistering}
-          classNames={{
-            errorMessage: 'text-red-600 font-bold text-base',
-          }}
-        />
-      </div>
-
-      {/* Contraseña */}
-      <div>
-        <Input
-          isRequired
-          isInvalid={!!fieldErrors.password}
-          errorMessage={fieldErrors.password}
-       
-          placeholder="Mínimo 6 caracteres"
-          type="password"
-          name="password"
-          value={formData.password}
-          onChange={handleChange}
-          autoComplete="new-password"
-          className = "bg-white rounded-lg"  
-          disabled={isRegistering}
-          endContent={<span className="text-default-400">🔒</span>}
-          classNames={{
-            errorMessage: 'text-red-600 font-bold text-base',
-          }}
-        />
-      </div>
-
-      {/* Confirmar Contraseña */}
-      <div>
-        <Input
-          isRequired
-          isInvalid={!!fieldErrors.confirmPassword}
-          errorMessage={fieldErrors.confirmPassword}
-         
-          placeholder="Repite tu contraseña"
-          type="password"
-          name="confirmPassword"
-          value={formData.confirmPassword}
-          onChange={handleChange}
-          autoComplete="new-password"
-          className = "bg-white rounded-lg"  
-          disabled={isRegistering}
-          endContent={<span 
-            className="text-default-400 ">🔒</span>}
-          classNames={{
-            errorMessage: 'text-red-600 font-bold text-base',
-          }}
-        />
-      </div>
-
-      {/* Mensaje de Error del Backend */}
-      {error && (
-        <div className="animate-in fade-in duration-300 flex gap-3 p-4 rounded-lg bg-red-100 border-2 border-red-600">
-          <span className="text-2xl">⚠️</span>
-          <div>
-            <p className="font-bold text-red-700">Error en el registro</p>
-            <p className="text-sm text-red-700 font-semibold">{error}</p>
-          </div>
+      <form className="space-y-4" onSubmit={handleSubmit}>
+        {/* Name */}
+        <div className="group relative">
+          <User className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 group-focus-within:text-red-400 transition-colors" />
+          <input 
+            type="text"
+            name="full_name"
+            placeholder="Tu nombre completo"
+            value={formData.full_name}
+            onChange={handleChange}
+            disabled={isRegistering}
+            autoComplete="name"
+            className={`w-full bg-black/40 border rounded-xl py-3 pl-10 pr-4 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 transition-all disabled:opacity-50 ${
+              fieldErrors.full_name ? 'border-red-500' : 'border-gray-700/50'
+            }`}
+          />
+          {fieldErrors.full_name && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.full_name}</p>
+          )}
         </div>
-      )}
 
-      {/* Mensaje de Éxito */}
-      {successMessage && (
-        <div className="animate-in fade-in duration-300 flex gap-3 p-4 rounded-lg bg-success-50 border border-success-200">
-          <span className="text-2xl">✅</span>
-          <div>
-            <p className="font-semibold text-success-700">¡Registro exitoso!</p>
-            <p className="text-small text-success-600">{successMessage}</p>
-          </div>
+        {/* Email */}
+        <div className="group relative">
+          <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 group-focus-within:text-red-400 transition-colors" />
+          <input 
+            type="email"
+            name="email"
+            placeholder="tucorreo@dominio.com"
+            value={formData.email}
+            onChange={handleChange}
+            disabled={isRegistering}
+            autoComplete="email"
+            className={`w-full bg-black/40 border rounded-xl py-3 pl-10 pr-4 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 transition-all disabled:opacity-50 ${
+              fieldErrors.email ? 'border-red-500' : 'border-gray-700/50'
+            }`}
+          />
+          {fieldErrors.email && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.email}</p>
+          )}
         </div>
-      )}
 
-      {/* Botón Enviar */}
-      <Button
-        color="danger"
-        type="submit"
-        fullWidth
-        size="lg"
-        isLoading={isRegistering}
-        disabled={isRegistering}
-        className="font-semibold mx-auto w-max bg-red-900 rounded-lg hover:bg-red-800"
-        spinner={<Spinner size="sm" color="white" />}
-      >
-        {isRegistering ? 'Creando cuenta...' : 'Crear Cuenta'}
-      </Button>
+        {/* Password */}
+        <div className="group relative">
+          <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 group-focus-within:text-red-400 transition-colors" />
+          <input 
+            type={showPassword ? "text" : "password"}
+            name="password"
+            placeholder="Mínimo 6 caracteres"
+            value={formData.password}
+            onChange={handleChange}
+            disabled={isRegistering}
+            autoComplete="new-password"
+            className={`w-full bg-black/40 border rounded-xl py-3 pl-10 pr-10 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 transition-all disabled:opacity-50 ${
+              fieldErrors.password ? 'border-red-500' : 'border-gray-700/50'
+            }`}
+          />
+          <button 
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            disabled={isRegistering}
+            className="absolute right-3 top-3.5 text-gray-500 hover:text-white transition-colors disabled:opacity-50"
+          >
+            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+          {fieldErrors.password && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.password}</p>
+          )}
+        </div>
 
-      {/* Link a Login */}
-      <p className="text-center text-small text-gray-300">
-        ¿Ya tienes una cuenta?{' '}
-        <Link
-          size="sm"
-          color="danger"
-          onPress={onSwitchToLogin}
-          className={`cursor-pointer font-semibold ${isRegistering ? 'opacity-50 pointer-events-none' : ''}`}
-          isDisabled={isRegistering}
+        {/* Confirm Password */}
+        <div className="group relative">
+          <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 group-focus-within:text-red-400 transition-colors" />
+          <input 
+            type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
+            placeholder="Confirma tu contraseña"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            disabled={isRegistering}
+            autoComplete="new-password"
+            className={`w-full bg-black/40 border rounded-xl py-3 pl-10 pr-10 text-gray-200 placeholder-gray-600 focus:outline-none focus:border-red-500/50 focus:ring-2 focus:ring-red-500/20 transition-all disabled:opacity-50 ${
+              fieldErrors.confirmPassword ? 'border-red-500' : 'border-gray-700/50'
+            }`}
+          />
+          <button 
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            disabled={isRegistering}
+            className="absolute right-3 top-3.5 text-gray-500 hover:text-white transition-colors disabled:opacity-50"
+          >
+            {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+          </button>
+          {fieldErrors.confirmPassword && (
+            <p className="text-red-400 text-xs mt-1">{fieldErrors.confirmPassword}</p>
+          )}
+        </div>
+
+        {/* Error */}
+        {registerError && (
+          <div className="flex gap-3 p-4 rounded-lg bg-red-900/30 border border-red-500/50">
+            <span className="text-xl">⚠️</span>
+            <div>
+              <p className="font-semibold text-red-400">Error en el registro</p>
+              <p className="text-sm text-red-300">{registerError}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Success */}
+        {successMessage && (
+          <div className="flex gap-3 p-4 rounded-lg bg-green-900/30 border border-green-500/50">
+            <span className="text-xl">✅</span>
+            <div>
+              <p className="font-semibold text-green-400">¡Éxito!</p>
+              <p className="text-sm text-green-300">{successMessage}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Submit */}
+        <button 
+          type="submit"
+          disabled={isRegistering}
+          className="w-full bg-gradient-to-r from-red-700 to-red-600 hover:from-red-600 hover:to-red-500 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-900/30 hover:shadow-red-600/40 active:scale-[0.98] transition-all duration-200 flex items-center justify-center gap-2 group/btn disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Inicia sesión
-        </Link>
-      </p>
-    </Form>
+          {isRegistering ? (
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Registrando...</span>
+            </>
+          ) : (
+            <>
+              <span>Registrarse</span>
+              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+            </>
+          )}
+        </button>
+      </form>
+
+      {/* Footer */}
+      <div className="mt-8 pt-6 border-t border-white/5 text-center">
+        <p className="text-gray-400 text-sm">
+          ¿Ya tienes cuenta?{' '}
+          <button 
+            type="button"
+            onClick={onSwitchToLogin}
+            disabled={isRegistering}
+            className="text-white font-medium hover:underline decoration-red-500 underline-offset-4 disabled:opacity-50"
+          >
+            Inicia Sesión
+          </button>
+        </p>
+      </div>
+    </>
   );
 };

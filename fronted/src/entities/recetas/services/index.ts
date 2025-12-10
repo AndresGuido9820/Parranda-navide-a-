@@ -6,4 +6,11 @@ export { useGetCommunityRecipes } from './useGetCommunityRecipes';
 export { useGetMyRecipes } from './useGetMyRecipes';
 export { useGetRecipeById } from './useGetRecipeById';
 export { useUpdateRecipe } from './useUpdateRecipe';
+export {
+  useGetFavoriteIds,
+  useGetMyFavorites,
+  useAddFavorite,
+  useRemoveFavorite,
+  useToggleFavorite,
+} from './useFavorites';
 

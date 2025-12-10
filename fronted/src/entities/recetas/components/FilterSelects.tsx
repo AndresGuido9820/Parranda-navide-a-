@@ -52,7 +52,7 @@ export const FilterSelects: React.FC<FilterSelectsProps> = ({
         }}
       >
         {categorias.map((cat) => (
-          <SelectItem key={cat.key} value={cat.key} textValue={cat.label}>
+          <SelectItem key={cat.key} textValue={cat.label}>
             {cat.label}
           </SelectItem>
         ))}
@@ -80,7 +80,7 @@ export const FilterSelects: React.FC<FilterSelectsProps> = ({
         }}
       >
         {ordenamiento.map((orden) => (
-          <SelectItem key={orden.key} value={orden.key} textValue={orden.label}>
+          <SelectItem key={orden.key} textValue={orden.label}>
             {orden.label}
           </SelectItem>
         ))}

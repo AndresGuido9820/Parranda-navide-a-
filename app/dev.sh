@@ -17,6 +17,7 @@ show_help() {
     echo "  db-logs   - Show database logs"
     echo "  shell     - Open shell in app container"
     echo "  migrate   - Run database migrations"
+    echo "  seed      - Seed database with test data"
     echo "  clean     - Clean up containers and volumes"
     echo "  status    - Show status of all services"
     echo "  diagnose  - Diagnose common issues"
@@ -29,8 +30,8 @@ start_services() {
     
     # First, build the image to catch any build errors
     echo "🔨 Building application image..."
-    if ! docker-compose -f docker-compose.dev.yml build app; then
-        echo "❌ Failed to build with docker-compose!"
+    if ! docker compose -f docker-compose.yml build app; then
+        echo "❌ Failed to build with docker compose!"
         echo "🔄 Trying with buildx..."
         if ! docker buildx build --tag parranda-app:latest .; then
             echo "❌ Failed to build application image!"
@@ -40,7 +41,7 @@ start_services() {
     fi
     
     # Start all services
-    if ! docker-compose -f docker-compose.dev.yml up -d; then
+    if ! docker compose -f docker-compose.yml up -d; then
         echo "❌ Failed to start services!"
         echo "💡 Try running: ./dev.sh clean && ./dev.sh start"
         exit 1
@@ -51,10 +52,10 @@ start_services() {
     sleep 5
     
     # Check if services are running
-    if ! docker-compose -f docker-compose.dev.yml ps | grep -q "Up"; then
+    if ! docker compose -f docker-compose.yml ps | grep -q "Up"; then
         echo "❌ Some services failed to start!"
         echo "📋 Checking logs..."
-        docker-compose -f docker-compose.dev.yml logs
+        docker compose -f docker-compose.yml logs
         exit 1
     fi
     
@@ -78,14 +79,14 @@ start_services() {
 # Function to stop services
 stop_services() {
     echo "🛑 Stopping services..."
-    docker-compose -f docker-compose.dev.yml down
+    docker compose -f docker-compose.yml down
     echo "✅ Services stopped!"
 }
 
 # Function to restart services
 restart_services() {
     echo "🔄 Restarting services..."
-    docker-compose -f docker-compose.dev.yml restart
+    docker compose -f docker-compose.yml restart
     echo "✅ Services restarted!"
 }
 
@@ -95,11 +96,11 @@ build_image() {
     
     # Clean up any existing containers
     echo "🧹 Cleaning up existing containers..."
-    docker-compose -f docker-compose.dev.yml down
+    docker compose -f docker-compose.yml down
     
     # Build with no cache to ensure fresh build
-    if ! docker-compose -f docker-compose.dev.yml build --no-cache app; then
-        echo "❌ Failed to build with docker-compose!"
+    if ! docker compose -f docker-compose.yml build --no-cache app; then
+        echo "❌ Failed to build with docker compose!"
         echo "🔄 Trying with buildx..."
         if ! docker buildx build --tag parranda-app:latest .; then
             echo "❌ Failed to build application image!"
@@ -114,32 +115,39 @@ build_image() {
 # Function to show logs
 show_logs() {
     echo "📋 Showing application logs..."
-    docker-compose -f docker-compose.dev.yml logs -f app
+    docker compose -f docker-compose.yml logs -f app
 }
 
 # Function to show database logs
 show_db_logs() {
     echo "📋 Showing database logs..."
-    docker-compose -f docker-compose.dev.yml logs -f db
+    docker compose -f docker-compose.yml logs -f db
 }
 
 # Function to open shell
 open_shell() {
     echo "🐚 Opening shell in app container..."
-    docker-compose -f docker-compose.dev.yml exec app bash
+    docker compose -f docker-compose.yml exec app bash
 }
 
 # Function to run migrations
 run_migrations() {
     echo "🗄️ Running database migrations..."
-    docker-compose -f docker-compose.dev.yml exec app alembic upgrade head
+    docker compose -f docker-compose.yml exec app alembic upgrade head
     echo "✅ Migrations completed!"
+}
+
+# Function to seed database
+seed_database() {
+    echo "🌱 Seeding database with test data..."
+    docker compose -f docker-compose.yml exec app python -m scripts.seed_all
+    echo "✅ Database seeded!"
 }
 
 # Function to clean up
 clean_up() {
     echo "🧹 Cleaning up containers and volumes..."
-    docker-compose -f docker-compose.dev.yml down -v
+    docker compose -f docker-compose.yml down -v
     docker system prune -f
     echo "✅ Cleanup completed!"
 }
@@ -148,7 +156,7 @@ clean_up() {
 show_status() {
     echo "📊 Service Status:"
     echo "=================="
-    docker-compose -f docker-compose.dev.yml ps
+    docker compose -f docker-compose.yml ps
     echo ""
     echo "🐳 Docker Images:"
     echo "================="
@@ -167,16 +175,16 @@ diagnose() {
         return 1
     fi
     
-    # Check if docker-compose is available
-    if ! command -v docker-compose >/dev/null 2>&1; then
-        echo "❌ docker-compose is not installed!"
-        echo "💡 Install docker-compose: sudo apt install docker-compose"
+    # Check if docker compose is available
+    if ! docker compose version >/dev/null 2>&1; then
+        echo "❌ docker compose plugin is not installed!"
+        echo "💡 Install: sudo apt install docker-compose-plugin"
         return 1
     fi
     
     # Check if files exist
-    if [ ! -f "docker-compose.dev.yml" ]; then
-        echo "❌ docker-compose.dev.yml not found!"
+    if [ ! -f "docker-compose.yml" ]; then
+        echo "❌ docker-compose.yml not found!"
         return 1
     fi
     
@@ -204,7 +212,7 @@ diagnose() {
     echo "✅ Basic checks passed!"
     echo ""
     echo "📋 Current service status:"
-    docker-compose -f docker-compose.dev.yml ps
+    docker compose -f docker-compose.yml ps
 }
 
 # Main script logic
@@ -232,6 +240,9 @@ case "$1" in
         ;;
     migrate)
         run_migrations
+        ;;
+    seed)
+        seed_database
         ;;
     clean)
         clean_up

@@ -11,7 +11,7 @@ class RegisterRequest(BaseModel):
 
     email: EmailStr
     password: str
-    full_name: Optional[str] = None
+    full_name: str
     alias: Optional[str] = None
     phone: Optional[str] = None
 
@@ -30,12 +30,6 @@ class LoginRequest(BaseModel):
         }
 
 
-class MagicLinkRequest(BaseModel):
-    """Magic link request."""
-
-    email: EmailStr
-
-
 class UserResponse(BaseModel):
     """User response."""
 
@@ -44,9 +38,19 @@ class UserResponse(BaseModel):
     full_name: Optional[str] = None
     alias: Optional[str] = None
     phone: Optional[str] = None
+    avatar_url: Optional[str] = None
     is_active: bool
     created_at: datetime
     updated_at: datetime
+
+
+class UpdateProfileRequest(BaseModel):
+    """Update user profile request."""
+
+    full_name: Optional[str] = None
+    alias: Optional[str] = None
+    phone: Optional[str] = None
+    avatar_url: Optional[str] = None
 
 
 class AuthResponse(BaseModel):

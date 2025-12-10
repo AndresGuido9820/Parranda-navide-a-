@@ -1,3 +1,4 @@
+import { Snowflake } from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../entities/auth";
@@ -57,10 +58,12 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
 
             {/* Logo - Hidden on mobile */}
             <div
-              className="hidden md:flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              className="hidden md:flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={handleLogoClick}
             >
-              <span className="text-2xl">🎄</span>
+              <div className="bg-red-600/20 p-2 rounded-lg border border-red-500/30 backdrop-blur-sm">
+                <Snowflake className="text-red-500 w-6 h-6" />
+              </div>
               <h1 className="text-xl font-bold text-white">Navidad Mágica</h1>
             </div>
 
@@ -94,8 +97,8 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
               <div className="md:hidden flex items-center gap-2">
                 <img
                   src={avatarUrl}
-                  alt={user.full_name}
-                  className="w-9 h-9 rounded-full border-2 border-red-300/30"
+                  alt={user.full_name || 'Usuario'}
+                  className="w-9 h-9 rounded-lg border-2 border-red-300/30"
                 />
               </div>
             )}
@@ -117,8 +120,10 @@ export const Header: React.FC<HeaderProps> = ({ showUserInfo = true }) => {
             <div className="flex flex-col h-full">
               {/* Modal Header */}
               <div className="flex items-center justify-between p-4 border-b border-red-800/50">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl">🎄</span>
+                <div className="flex items-center gap-3">
+                  <div className="bg-red-600/20 p-2 rounded-lg border border-red-500/30">
+                    <Snowflake className="text-red-500 w-5 h-5" />
+                  </div>
                   <h2 className="text-lg font-bold text-white">Navidad Mágica</h2>
                 </div>
                 <button

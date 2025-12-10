@@ -1,1 +1,1 @@
-export { RecipeDetailPage, type RecipeDetailData, type RecipeStep } from './RecipeDetailPage';
+export { RecipeDetailPage } from './RecipeDetailPage';
